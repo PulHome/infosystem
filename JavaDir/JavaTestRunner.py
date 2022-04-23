@@ -7,6 +7,14 @@ import sys
 from localization import Locale
 
 from shutil import copy2
+import xmlSortChecker
+
+
+def executeChecker(checker, cmd, input, correctAnswers):
+    if checker == "xmlSortChecker":
+        result = xmlSortChecker.check(cmd, input, correctAnswers[0])
+        return result
+    return False
 
 
 # read the correct answer for test## from .a file
@@ -22,13 +30,10 @@ def readConfing(pathTocfg):
         keypairs = fileContent.split("\t")
         dictOfConfigs = {k: v for k, v in map(lambda x: x.split("="), keypairs)}
 
-    # В словарь записан полный конфиг. В поле func функция проверки
-    if "func" in dictOfConfigs:
-        if dictOfConfigs["func"] == "contains":
-            dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
-        else:
-            dictOfConfigs["func"] = lambda x, y: (x.strip() == y.strip())
+    if "func" in dictOfConfigs and dictOfConfigs["func"] != "contains":
+        dictOfConfigs["doUseStandAloneTests"] = True
     else:
+        # В словарь записан полный конфиг. В поле func функция проверки
         dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
 
     return dictOfConfigs
@@ -85,14 +90,14 @@ def getCorrectAnswers(dirWithTests, fileWithTests):
 easyMode = False  # в этом режиме показываются входные данные для упавших тестов.
 maxExecutionTimeDelay = 2  # max timeout for a task
 
+
 ################
 
-
-if __name__ == "__main__":
-    fileToCheck = "Task943603.class"
-    dirToCheck = "dateTime_timeManagement"
+def main():
+    fileToCheck = "Main.class"
+    dirToCheck = "processAndSortXml"
     retArray = list()
-
+    easyMode = True
     extraDataForEasyMode = ""
 
     if len(sys.argv) > 2:
@@ -105,16 +110,28 @@ if __name__ == "__main__":
         dirWithTests = "..\\pylint\\tests\\" + dirToCheck + "\\"
     testConfiguration = readConfing(dirWithTests + "config.conf")
     # print(os.path.abspath(dirWithTests))
-    pyRunPath = os.getcwd().replace('/','\\')
-    
+    pyRunPath = os.getcwd().replace('/', '\\')
+
     # для всех файлов .t с входными данными
     testFiles = sorted(filter(lambda x: x.endswith(".t"), os.listdir(dirWithTests)), key=lambda x: int(x[4:-2]))
+
     for file in testFiles:
         if os.path.isfile(dirWithTests + file) and file.endswith(".t"):
             inputDataFile = testConfiguration.get("input", "input.txt")
             copy2(dirWithTests + file, inputDataFile)
+
+            # надо проверить .a файлы с ответами
+            correctAnswers = getCorrectAnswers(dirWithTests, file)
+
             cmd = f"java -classpath {pyRunPath}\\;{pyRunPath}\\gson.jar -Dfile.encoding=utf-8 {fileToCheck.replace('.class', '')}"
-            
+
+            if testConfiguration.get("doUseStandAloneTests"):
+                if executeChecker(testConfiguration.get("func"), cmd, inputDataFile, correctAnswers):
+                    print(Locale.Passed)
+                else:
+                    print(Locale.Failed)
+                return
+
             proc = subprocess.Popen(cmd,
                                     stdout=open("output", "w+", encoding="utf-8"),
                                     stderr=subprocess.STDOUT,
@@ -140,10 +157,7 @@ if __name__ == "__main__":
                 if "input" in testConfiguration and os.path.exists(str(testConfiguration["input"])):
                     os.remove(str(testConfiguration["input"]))
 
-                # надо проверить .a файлы с ответами
-                correctAnswers = getCorrectAnswers(dirWithTests, file)
-
-                # функция проверки правильного ответа - пока единственный обязательный параметр конфига
+            # функция проверки правильного ответа
             funcToCheckAnswer = testConfiguration.get("func", None)
             if funcToCheckAnswer is None:
                 break
@@ -202,3 +216,7 @@ if __name__ == "__main__":
         if easyMode and extraDataForEasyMode:
             print(Locale.EasyModeHelp % extraDataForEasyMode)
         print(Locale.Failed)
+
+
+if __name__ == "__main__":
+    main()
