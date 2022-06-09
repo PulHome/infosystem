@@ -25,7 +25,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<TabPane fx:id="myTabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="498.0" prefWidth="517.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="informationsystem.FXMLDocumentController">
+<TabPane fx:id="myTabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="498.0" prefWidth="517.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="informationsystem.FXMLDocumentController">
     <tabs>
         <Tab text="Подключение">
             <content>
@@ -244,10 +244,10 @@
                            <children>
                               <BorderPane prefHeight="70.0" prefWidth="504.0">
                                  <left>
-                                    <TextField fx:id="IssueToTestNumber" prefHeight="40.0" prefWidth="163.0" promptText="Введите номер задачи" BorderPane.alignment="CENTER" />
+                                    <TextField fx:id="IssueToTestNumber" prefHeight="40.0" prefWidth="141.0" promptText="Введите номер задачи" BorderPane.alignment="CENTER" />
                                  </left>
                                  <right>
-                                    <HBox prefHeight="60.0" prefWidth="291.0">
+                                    <HBox prefHeight="60.0" prefWidth="344.0">
                                        <children>
                                           <Button fx:id="SignleIssueCheck" mnemonicParsing="false" onAction="#handleButtonSingleIssueCheckAction" prefHeight="40.0" text="Проверить задачу" HBox.hgrow="ALWAYS">
                                              <HBox.margin>
@@ -255,6 +255,11 @@
                                              </HBox.margin>
                                           </Button>
                                           <Button fx:id="SignleIssueCheck1" mnemonicParsing="false" onAction="#seeTestsForATask" prefHeight="40.0" text="Посмотреть тесты" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="5.0" right="5.0" top="3.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                          <Button fx:id="btnCheckPlagiat" mnemonicParsing="false" onAction="#handleButtonPlagiatCheck" prefHeight="40.0" prefWidth="71.0" text="Плагиат">
                                              <HBox.margin>
                                                 <Insets left="5.0" top="3.0" />
                                              </HBox.margin>

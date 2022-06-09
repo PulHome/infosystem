@@ -11,6 +11,8 @@ import com.taskadapter.redmineapi.bean.Journal;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 import data.*;
 import informationsystem.loggerWindow.LoggerWindowController;
+import informationsystem.plagiat.PlagiatWindowController;
 import informationsystem.tasksManager.FxmlTasksController;
 import informationsystem.tasksManager.TaskInfo;
 import informationsystem.tasksManager.TasksKeeper;
@@ -47,6 +50,7 @@ import redmineManagement.ConnectionWithRedmine;
 import redmineManagement.RedmineAlternativeReader;
 import tools.IssueCrawler;
 import tools.PvkLogger;
+import tools.plagiatChecker.PlagiatChecker;
 
 /**
  * @author user
@@ -55,6 +59,7 @@ public class FXMLDocumentController implements Initializable {
 
     private final TasksXmlReader tasksReader = new TasksXmlReader(".\\TestsInfo_v2.xml");
     private final SettingsXmlReader settingsReader = new SettingsXmlReader(".\\ProjectKey.xml");
+    private final String pathToFiles = ".\\myFiles\\";
 
     private ArrayList<Project> projects = new ArrayList<>();
     private LoggerWindowController loggerWindowController;
@@ -163,6 +168,9 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private Button btnDownloadAll;
+
+    @FXML
+    private Button btnCheckPlagiat;
 
     @FXML
     private Tab tasksTab;
@@ -477,7 +485,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void runMainCheckAllTasks() {
-        logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)   + ": ======Started========\n");
+        logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + ": ======Started========\n");
         connectionToRedmine.setProfessorName(comboxUserName.getValue().toString());
 
         boolean easyMode = easyModechk.isSelected();
@@ -784,6 +792,12 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleButtonPlagiatCheck(ActionEvent event) {
+        PlagiatWindowController plagiatWindow = new PlagiatWindowController();
+        plagiatWindow.openChooseTaskDialog(event, tasksKeeper, new PlagiatChecker(), pathToFiles);
+    }
+
     private void openTaskStage(ActionEvent event, TaskInfo taskInfo) {
         Parent root;
         try {
@@ -1021,11 +1035,16 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void setSelectedIteration(ActionEvent e) {
+        if (comboxVersion.getValue() == null) {
+            return;
+        }
+
         if (!comboxVersion.getValue().toString().isEmpty()) {
             String selected = (String) comboxVersion.getValue();
             props.iterationName = selected;
         }
     }
+
 
     private static PvkLogger logger = PvkLogger.getLogger(FXMLDocumentController.class.getSimpleName(), false);
 }

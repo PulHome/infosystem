@@ -104,7 +104,7 @@ public class TextUtils {
             Pattern pattern = Pattern.compile("\\d+");
             Matcher m = pattern.matcher(lastlineInFile);
             m.find();
-            String numberOfErrors =  m.group();
+            String numberOfErrors = m.group();
             if (numberOfErrors != null && !numberOfErrors.equals("")) {
                 return Integer.parseInt(numberOfErrors);
             }
@@ -156,7 +156,7 @@ public class TextUtils {
     }
 
     public static boolean isNullOrEmpty(String testStr) {
-        return (testStr == null) || testStr.trim().isEmpty() ;
+        return (testStr == null) || testStr.trim().isEmpty();
     }
 
     public static String getStringResult(int checkRes) {
@@ -164,4 +164,18 @@ public class TextUtils {
     }
 
     static Logger logger = Logger.getLogger(TextUtils.class.getSimpleName());
+
+    public static String getTaskName(String pathOfTheTask) {
+        if (TextUtils.isNullOrEmpty(pathOfTheTask)) {
+            return "";
+        }
+
+        String[] parts = pathOfTheTask.split("_");
+        return parts.length > 1 ? parts[1] : "";
+    }
+
+    public static String getUserName(String pathOfTheTask) {
+        String[] parts = pathOfTheTask.split("_")[0].split("\\\\");
+        return parts.length > 2 ? parts[2] : "";
+    }
 }

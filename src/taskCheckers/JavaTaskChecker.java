@@ -1,6 +1,7 @@
 package taskCheckers;
 
 import lintsForLangs.MyPylint;
+import tools.PvkLogger;
 import tools.ZipFile;
 
 import java.io.BufferedReader;
@@ -33,8 +34,7 @@ public class JavaTaskChecker extends TaskChecker {
         return startJavaCheck(this.getSubject(), this.getFileToManage());
     }
 
-    public String   startJavaCheck(String subject, String fileToManage) throws UnsupportedOperationException {
-
+    public String startJavaCheck(String subject, String fileToManage) throws UnsupportedOperationException {
         StringBuilder sbResultOfTests = new StringBuilder();
         FileAndItsTest data = copyFileToTempFolder(fileToManage);
         data.testName = getTestName3(subject);
@@ -86,9 +86,10 @@ public class JavaTaskChecker extends TaskChecker {
                 }
                 //compile 'main' file
                 data.fileName = mainFile.getAbsolutePath();
-                JavaCompileSingleJavaFile(sbResultOfTests, data, false);
 
                 //send to python check .class with full path of the main file
+                JavaCompileSingleJavaFile(sbResultOfTests, data, false);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -136,7 +137,8 @@ public class JavaTaskChecker extends TaskChecker {
                 return;
             }
         } catch (IOException ex) {
-            Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
+            PvkLogger.getLogger(MyPylint.class.getName())
+                    .error("Failed to compile Java code! " + ex.getMessage());
         }
         RunTestsForMainClass(sb, data);
         //removeTempFiles(data);

@@ -73,6 +73,7 @@ public class Translit {
         letters.put("э", "e");
         letters.put("ю", "yu");
         letters.put("я", "ya");
+        letters.put("-", "");
     }
 
     public static String toTranslit(String text) {
