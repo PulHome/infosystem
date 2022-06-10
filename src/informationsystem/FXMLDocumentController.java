@@ -11,8 +11,6 @@ import com.taskadapter.redmineapi.bean.Journal;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -50,7 +48,7 @@ import redmineManagement.ConnectionWithRedmine;
 import redmineManagement.RedmineAlternativeReader;
 import tools.IssueCrawler;
 import tools.PvkLogger;
-import tools.plagiatChecker.PlagiatChecker;
+import tools.plagiatChecker.JavaPlagiatChecker;
 
 /**
  * @author user
@@ -231,6 +229,10 @@ public class FXMLDocumentController implements Initializable {
         LoggerWindowController loggerWindow = showLoggerStage(logger);
         logger.setLoggerControllerWindow(loggerWindow);
         journalReader = new RedmineAlternativeReader(props.url, props.apiAccessKey, props.projectKey);
+
+        //read tasks
+        tasksKeeper = TasksKeeper.update(tasksReader);
+        tasksKeeper.setXmlReader(tasksReader);
     }
 
     private LoggerWindowController showLoggerStage(PvkLogger logger) {
@@ -794,8 +796,8 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void handleButtonPlagiatCheck(ActionEvent event) {
-        PlagiatWindowController plagiatWindow = new PlagiatWindowController();
-        plagiatWindow.openChooseTaskDialog(event, tasksKeeper, new PlagiatChecker(), pathToFiles);
+        PlagiatWindowController plagiatWindow = new PlagiatWindowController(new JavaPlagiatChecker());
+        plagiatWindow.openChooseTaskDialog(event, tasksKeeper, pathToFiles);
     }
 
     private void openTaskStage(ActionEvent event, TaskInfo taskInfo) {
@@ -896,9 +898,6 @@ public class FXMLDocumentController implements Initializable {
         if (!tasksTab.isSelected()) {
             return;
         }
-        logger.info("TasksTab is Selected. Starting.");
-        tasksKeeper = TasksKeeper.update(tasksReader);
-        tasksKeeper.setXmlReader(tasksReader);
 
         cbxAllAvailableTasks.setItems(FXCollections.observableArrayList(tasksKeeper.getAllTaskNames()));
         cbxAllAvailableIterations.setItems(FXCollections.observableArrayList(tasksKeeper.getAllIterations()));

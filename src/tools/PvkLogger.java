@@ -59,6 +59,7 @@ public class PvkLogger {
         logger.info(data);
         if (loggerWindow != null) {
             loggerWindow.appendLogsBold(data);
+            loggerWindow.appendLogsBoldLn("");
         }
         flushAll();
     }

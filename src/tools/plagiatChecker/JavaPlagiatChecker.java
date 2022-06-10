@@ -11,16 +11,23 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PlagiatChecker {
+public class JavaPlagiatChecker implements IPlagiatChecker {
 
-    public PlagiatChecker() {
+    public JavaPlagiatChecker() {
         CodeComparer.setLoggerHandler(null);
     }
 
+    @Override
+    public String getLanguage() {
+        return ".java";
+    }
+
+    @Override
     public double check(String path1, String path2) {
         return check(createSimpleArrayList(path1), createSimpleArrayList(path2));
     }
 
+    @Override
     public double check(ArrayList<Path> paths1, ArrayList<Path> paths2) {
         CodeComparer codeComparer = null;
         try {
@@ -35,10 +42,12 @@ public class PlagiatChecker {
         return 0;
     }
 
+    @Override
     public Map<String, ArrayList<Map<String, Double>>> checkAll(String path) {
         return checkAll(path, "");
     }
 
+    @Override
     public Map<String, ArrayList<Map<String, Double>>> checkAll(String path, String taskNameTranslited) {
         Map<String, ArrayList<Map<String, Double>>> comparisonMap = new HashMap<>();
         List<Path> javaFiles = null;
@@ -96,6 +105,7 @@ public class PlagiatChecker {
         return comparisonMap;
     }
 
+    @Override
     public Map<String, ArrayList<Map<String, Double>>> checkTask(String path, String task) {
         return checkAll(path, Translit.toTranslit(task));
     }
@@ -116,6 +126,6 @@ public class PlagiatChecker {
         return retVal;
     }
 
-    private static PvkLogger logger = PvkLogger.getLogger(PlagiatChecker.class.getSimpleName());
+    private static PvkLogger logger = PvkLogger.getLogger(JavaPlagiatChecker.class.getSimpleName());
 
 }
