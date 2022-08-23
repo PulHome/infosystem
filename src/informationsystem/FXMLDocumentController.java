@@ -49,6 +49,7 @@ import redmineManagement.RedmineAlternativeReader;
 import tools.IssueCrawler;
 import tools.PvkLogger;
 import tools.plagiatChecker.JavaPlagiatChecker;
+import tools.plagiatChecker.PythonPlagiatChecker;
 
 /**
  * @author user
@@ -796,8 +797,35 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void handleButtonPlagiatCheck(ActionEvent event) {
-        PlagiatWindowController plagiatWindow = new PlagiatWindowController(new JavaPlagiatChecker());
-        plagiatWindow.openChooseTaskDialog(event, tasksKeeper, pathToFiles);
+        List<String> choices = Arrays.asList("Java", "Python", "Cpp");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+        dialog.setTitle("Выберите язык программирования");
+        dialog.setHeaderText("Список подерживаемых языков");
+        dialog.setContentText("Выберите язык:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(res ->
+                {
+                    PlagiatWindowController plagiatWindow = null;
+                    if (res.equals("Java")) {
+                        plagiatWindow = new PlagiatWindowController(new JavaPlagiatChecker());
+
+                    }
+                    else if (res.equals("Python")) {
+                        plagiatWindow = new PlagiatWindowController(new PythonPlagiatChecker());
+                    }
+                    else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Данный язык пока не поддерживается", ButtonType.CLOSE);
+                        alert.setHeaderText("Данный язык не поддерживается");
+                        alert.setTitle("Проверка плагиата");
+                        alert.show();
+                        return;
+                    }
+
+                    plagiatWindow.openChooseTaskDialog(event, tasksKeeper, pathToFiles);
+                }
+        );
     }
 
     private void openTaskStage(ActionEvent event, TaskInfo taskInfo) {
