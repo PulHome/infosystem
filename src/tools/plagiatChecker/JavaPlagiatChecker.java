@@ -118,7 +118,7 @@ public class JavaPlagiatChecker implements IPlagiatChecker {
     }
 
     private ArrayList<Path> createSimpleArrayList(Path... paths) {
-        return Arrays.stream(paths).collect(Collectors.toCollection(ArrayList::new));
+        return new ArrayList<>(Arrays.asList(paths));
     }
 
     private ArrayList<Path> createSimpleArrayList(String... paths) {
