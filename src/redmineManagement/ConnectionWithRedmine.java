@@ -588,11 +588,10 @@ public class ConnectionWithRedmine {
     }
 
     public void uploadAttachment(Issue issue, String path) {
-
         try {
             File file = new File(path);
             attachmentManager.addAttachmentToIssue(issue.getId(), file, ContentType.TEXT_PLAIN.getMimeType());
-        } catch (RedmineException | IOException ex) {
+        } catch (RedmineException | IOException | IllegalArgumentException ex) {
             logger.info(ex.toString());
         }
     }
@@ -653,6 +652,7 @@ public class ConnectionWithRedmine {
             mgr.getIssueManager().update(issue);
         } catch (RedmineException ex) {
             logger.info(ex.toString());
+        } catch (IllegalArgumentException ex) {
         }
     }
 

@@ -99,7 +99,7 @@
                         <Insets bottom="10.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                   </VBox>
-                  <Text fx:id="versionName" strokeType="OUTSIDE" strokeWidth="0.0" text="\@PVK Robot UI ver 3.39" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7" GridPane.valignment="BOTTOM">
+                  <Text fx:id="versionName" strokeType="OUTSIDE" strokeWidth="0.0" text="\@PVK Robot UI ver 3.50" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7" GridPane.valignment="BOTTOM">
                      <GridPane.margin>
                         <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
                      </GridPane.margin>
@@ -115,7 +115,7 @@
                         <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                      </GridPane.margin>
                   </Label>
-                  <CheckBox fx:id="easyModechk" mnemonicParsing="false" selected="true" text="Показывать ответ в случае ошибки" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
+                  <CheckBox fx:id="easyModeCheck" mnemonicParsing="false" selected="true" text="Показывать ответ в случае ошибки" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
                   <CheckBox fx:id="checkAllIterations" mnemonicParsing="false" selected="true" text="Проверять все итерации проекта" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
                     </children>
                 </GridPane>

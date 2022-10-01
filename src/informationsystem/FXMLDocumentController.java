@@ -106,7 +106,7 @@ public class FXMLDocumentController implements Initializable {
     private CheckBox checkBoxJavaErrScan;
 
     @FXML
-    private CheckBox easyModechk;
+    private CheckBox easyModeCheck;
 
     @FXML
     private CheckBox checkAllIterations;
@@ -222,7 +222,7 @@ public class FXMLDocumentController implements Initializable {
         radioButtonAppointForStudent.requestFocus();
         radioButtonAppointForProfessor.setToggleGroup(groupAppointment);
 
-        easyModechk.setSelected(settingsReader.isEasyMode());
+        easyModeCheck.setSelected(settingsReader.isEasyMode());
         checkAllIterations.setSelected(settingsReader.needCheckAllIterations());
 
         initializeSelectedProject();
@@ -353,7 +353,7 @@ public class FXMLDocumentController implements Initializable {
     private String fillUrlProps(TextField textFieldURL) {
         String url = "";
 
-        if (textFieldURL != null || textFieldURL.getText() != null || textFieldURL.getText().isEmpty()) {
+        if (textFieldURL == null || textFieldURL.getText() == null || textFieldURL.getText().isEmpty()) {
             url = "https://www.hostedredmine.com";
         } else {
             url = textFieldURL.getText();
@@ -491,7 +491,7 @@ public class FXMLDocumentController implements Initializable {
         logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + ": ======Started========\n");
         connectionToRedmine.setProfessorName(comboxUserName.getValue().toString());
 
-        boolean easyMode = easyModechk.isSelected();
+        boolean easyMode = easyModeCheck.isSelected();
         boolean checkAll = checkAllIterations.isSelected();
         String iterationName = !checkAll ? comboxVersion.getValue().toString() : "";
 
@@ -761,7 +761,7 @@ public class FXMLDocumentController implements Initializable {
     private void handleButtonSingleIssueCheckAction(ActionEvent event) {
         String issueNum = IssueToTestNumber.getText();
         Integer issueNumLong = 0;
-        boolean easyMode = easyModechk.isSelected();
+        boolean easyMode = easyModeCheck.isSelected();
         connectionToRedmine.setProfessorName(comboxUserName.getValue().toString());
         try {
             issueNumLong = Integer.parseInt(issueNum);
@@ -885,7 +885,7 @@ public class FXMLDocumentController implements Initializable {
 
     public void shutdown() {
         HashMap<String, String> map = new HashMap<String, String>();
-        putToSettings(map, "isEasyMode", easyModechk.isSelected());
+        putToSettings(map, "isEasyMode", easyModeCheck.isSelected());
         putToSettings(map, "checkAllIterations", checkAllIterations.isSelected());
         putToSettings(map, "SelectedSupervisor", comboxUserName.getValue());
         putToSettings(map, "SelectedIteration", comboxVersion.getValue());
