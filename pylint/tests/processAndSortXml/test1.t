@@ -7,7 +7,7 @@
 	<MyBooksCollection value="NotForResale"/>
 	<BookStore>
 		<Book Author="Pushkin" Name="Captains Daughter"/>
-		<Book Author="Lermontov" Name="Mtsyri"/>
+		<Book Author="Lermontov" Name="Mtsyry"/>
 	</BookStore>
 	</xml>
 ]]>
@@ -17,7 +17,7 @@
 	<settings>
 		<array name="BookStore"/>
 		<attributeName value="Author" />
-	<settings/>
+	</settings>
 ]]>
 </inputFile>
 </root>

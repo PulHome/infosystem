@@ -1,0 +1,5 @@
+BeginArray
+AddArrayItem string before array
+BeginArray
+EndArray
+EndArray

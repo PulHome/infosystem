@@ -1,0 +1,2 @@
+{"Employee": {"name": "Ivanov", "age": 25, "position": "developer", "salary": {"amount": 100500, "currency": "peso"}, "availableRooms": [12, 14, 15]}}
+{"Employee": {"name": "Van Petrov", "age": 23, "position": "analyst", "salary": {"amount": 100, "currency": "rupee"}, "availableRooms": null}}

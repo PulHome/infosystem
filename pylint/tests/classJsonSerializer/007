@@ -1,0 +1,13 @@
+BeginArray
+AddArrayItem first level string
+AddArrayItem another string
+BeginArray
+AddArrayItem second level string
+AddArrayItem another string
+BeginArray
+AddArrayItem third level string
+EndArray
+AddArrayItem string after array
+AddArrayItem one more string
+EndArray
+EndArray

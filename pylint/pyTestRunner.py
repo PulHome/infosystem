@@ -56,11 +56,18 @@ def cleanMainFromFileToCheck():
         text_file = open(fileToCheck, "w+", encoding="utf-8")
         text_file.write(sourceFileWithoutMain)
         text_file.close()
+    return isMainFound
 
 
 def addExecStdIntoTheEndOfFile():
     text_file = open(fileToCheck, "a+", encoding="utf-8")
     text_file.write("\n\nfrom sys import stdin\n\nif __name__ == \"__main__\": exec(stdin.read())")
+    text_file.close()
+
+
+def addCustomMain(funcToCall):
+    text_file = open(fileToCheck, "a+", encoding="utf-8")
+    text_file.write(f"\n\nif __name__ == \"__main__\": {funcToCall}()")
     text_file.close()
 
 
@@ -142,8 +149,8 @@ maxExecutionTimeDelay = 2  # max timeout for a task
 ################
 
 if __name__ == "__main__":
-    fileToCheck = "myFile.py"
-    dirToCheck = "reverseInput"
+    fileToCheck = "my.py"
+    dirToCheck = "kr12ResurciveList"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
@@ -167,12 +174,18 @@ if __name__ == "__main__":
     for file in testFiles:
         if os.path.isfile(dirWithTests + file) and file.endswith(".t"):
             needToCompileTestData = testConfiguration.get("needToCompileTestData", None)
+            needToAddMain = testConfiguration.get("needToAddMain", None)
+            funcToCallInMain = testConfiguration.get("funcToCallInMain", None)
             inputDataFile = testConfiguration.get("input", "input.txt")
 
             copy2(dirWithTests + file, inputDataFile)
             if needToCompileTestData:
                 cleanMainFromFileToCheck()
                 addExecStdIntoTheEndOfFile()
+                
+            if needToAddMain and funcToCallInMain:
+                cleanMainFromFileToCheck()
+                addCustomMain(funcToCallInMain)
 
             proc = subprocess.Popen(["python", "-u", fileToCheck],
                                     stdout=open("output", "w+", encoding="utf-8"),
