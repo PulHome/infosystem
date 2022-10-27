@@ -23,11 +23,14 @@ def readConfing(pathTocfg):
     if os.path.isfile(pathTocfg):
         fileContent = open(pathTocfg, "r", encoding="utf-8").read()
         keypairs = fileContent.split("\t")
-        dictOfConfigs = {k: v for k, v in map(lambda x: x.split("="), keypairs)}
+        dictOfConfigs = {k: v for k, v in map(lambda x: x.split("=", 1), keypairs)}
     # В словарь записан полный конфиг. В поле func функция проверки
     if "func" in dictOfConfigs:
         if dictOfConfigs["func"] == "contains":
             dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
+        elif "lambda" in dictOfConfigs["func"]:
+            lambdaStr = dictOfConfigs["func"]
+            dictOfConfigs["func"] = lambda x, y: eval(lambdaStr)(x, y)
         else:
             dictOfConfigs["func"] = lambda x, y: (x.strip() == y.strip())
     else:
@@ -149,8 +152,8 @@ maxExecutionTimeDelay = 2  # max timeout for a task
 ################
 
 if __name__ == "__main__":
-    fileToCheck = "my.py"
-    dirToCheck = "kr12ResurciveList"
+    fileToCheck = "l_test.py"
+    dirToCheck = "recursionLagrange"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
