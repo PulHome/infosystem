@@ -101,6 +101,10 @@ public class TasksXmlReader extends XmlReader {
 
         //set new subject
         foundElement.setAttribute("subject", selectedTask.getTaskName());
+        if (!TextUtils.isNullOrEmpty(selectedTask.getTaskPath())) {
+            foundElement.setAttribute("testSetFolder", selectedTask.getTaskPath());
+        }
+
         try {
             saveXml(doc, filePath);
         } catch (TransformerException e) {

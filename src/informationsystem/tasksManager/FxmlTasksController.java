@@ -10,8 +10,19 @@ import informationsystem.xml.XmlReader;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import org.slf4j.Logger;
+import tools.PvkLogger;
+import tools.TextUtils;
+import tools.Translit;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
 
 /**
@@ -35,7 +46,13 @@ public class FxmlTasksController implements Initializable {
     private TextArea txtTaskDescription;
 
     @FXML
+    private TextField txtTestFolderName;
+
+    @FXML
     private TitledPane paneTaskDescription;
+
+    @FXML
+    private Button btnOpenTestFolder;
 
     public FxmlTasksController() {
 
@@ -65,6 +82,17 @@ public class FxmlTasksController implements Initializable {
             }
             taskInfo.setTaskBody(newValue);
         });
+
+        txtTestFolderName.textProperty().addListener((observable, oldValue, newValue) -> {
+            // TODO: если стереть все и сохранит
+            //  будет сохранен последний непустой символ, подумать надо ли править
+
+            if (newValue.isBlank() || newValue.equals(oldValue)) {
+                return;
+            }
+
+            taskInfo.setTaskPath(newValue);
+        });
     }
 
     public void shutdown() {
@@ -76,12 +104,16 @@ public class FxmlTasksController implements Initializable {
             this.taskInfo = taskInfo;
         }
 
-        if (taskInfo.getTaskName() != null) {
+        if (!TextUtils.isNullOrEmpty(taskInfo.getTaskName())) {
             txtTaskTitle.setText(taskInfo.getTaskName());
         }
 
-        if (taskInfo.getTaskBody() != null) {
+        if (!TextUtils.isNullOrEmpty(taskInfo.getTaskBody())) {
             txtTaskDescription.setText(taskInfo.getTaskBody());
+        }
+
+        if (!TextUtils.isNullOrEmpty(taskInfo.getTaskPath())) {
+            txtTestFolderName.setText(taskInfo.getTaskPath());
         }
     }
 
@@ -91,6 +123,10 @@ public class FxmlTasksController implements Initializable {
 
     private void saveTask(TaskInfo selectedTask) {
         String xmlWithTests = "TestsInfo_v2.xml";
+        if (TextUtils.isNullOrEmpty(selectedTask.getTaskPath())) {
+            selectedTask.setTaskPath(Translit.toTranslit(selectedTask.getTaskName()));
+        }
+
         TasksXmlReader reader = new TasksXmlReader(xmlWithTests);
         if (reader.exists(taskInfo)) {
             reader.saveTask(selectedTask);
@@ -98,4 +134,35 @@ public class FxmlTasksController implements Initializable {
             reader.addTask(selectedTask);
         }
     }
+
+    @FXML
+    private void btnOpenTestFolderClick() {
+        if (TextUtils.isNullOrEmpty(txtTestFolderName.getText())) {
+            txtTestFolderName.setText(Translit.toTranslit(txtTaskTitle.getText()));
+        }
+
+        //save changes to task updating folder path
+        taskInfo.setTaskPath(txtTestFolderName.getText());
+        saveTask(taskInfo);
+
+        String testsFolder = ".//pylint//tests//" + txtTestFolderName.getText();
+        Path testsPath = Path.of(testsFolder);
+        if (!Files.exists(testsPath)) {
+            try {
+                Files.createDirectory(testsPath);
+            } catch (IOException e) {
+                logger.error("Can't create test directory: " + testsFolder);
+            }
+        }
+
+        ProcessBuilder proc = new ProcessBuilder();
+        proc.command("explorer", testsPath.toAbsolutePath().toString());
+        try {
+            proc.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static PvkLogger logger = PvkLogger.getLogger(FxmlTasksController.class.getSimpleName());
 }
