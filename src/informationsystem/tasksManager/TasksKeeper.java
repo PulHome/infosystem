@@ -2,6 +2,7 @@ package informationsystem.tasksManager;
 
 import com.taskadapter.redmineapi.bean.Issue;
 import informationsystem.xml.TasksXmlReader;
+import tools.Translit;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +15,7 @@ public class TasksKeeper {
     static String PathToTests = ".\\pylint\\tests\\";
 
 
-    private HashSet<TaskInfo> allTasks = new HashSet<>();
+    private Set<TaskInfo> allTasks = new HashSet<>();
     private TaskInfo selectedTask;
     private TasksXmlReader reader;
 
@@ -30,7 +31,7 @@ public class TasksKeeper {
         allTasks.add(testData);
     }
 
-    public HashSet<TaskInfo> getAllTasks() {
+    public Set<TaskInfo> getAllTasks() {
         return allTasks;
     }
 
@@ -47,6 +48,21 @@ public class TasksKeeper {
                 .flatMap(p -> Stream.of(p.getTaskName()))
                 .sorted()
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, String> getAllTaskFilenamesAndTitles() {
+        Map<String, String> allTaskFilenamesAndTitles = new HashMap<>();
+
+        Set<String> setOfTasks = new HashSet<>();
+        for(String task : getAllTaskNames()) {
+            setOfTasks.add(task);
+        }
+
+        for (String task : setOfTasks) {
+            allTaskFilenamesAndTitles.put(Translit.toTranslit(task).toLowerCase(), task);
+        }
+
+        return allTaskFilenamesAndTitles;
     }
 
     public List<String> getTasksByIteration(String iteration) {
