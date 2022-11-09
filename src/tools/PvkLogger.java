@@ -5,6 +5,7 @@ import informationsystem.loggerWindow.LoggerWindowController;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.logging.*;
 
 public class PvkLogger {
@@ -55,6 +56,16 @@ public class PvkLogger {
         flushAll();
     }
 
+    public void info(List<? extends Object> aList) {
+        for (Object o : aList) {
+            logger.info(o.toString());
+            if (loggerWindow != null) {
+                loggerWindow.appendLogs(o.toString());
+            }
+        }
+        flushAll();
+    }
+
     public void warning(String data) {
         logger.info(data);
         if (loggerWindow != null) {
@@ -82,5 +93,6 @@ public class PvkLogger {
     private void flushAll() {
         streamHandler.flush();
     }
+
 
 }

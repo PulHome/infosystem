@@ -67,13 +67,24 @@ public class Translit {
         letters.put("ч", "ch");
         letters.put("ш", "sh");
         letters.put("щ", "sch");
-        letters.put("ъ", "");
+        letters.put("ь", "");
         letters.put("ы", "y");
         letters.put("ъ", "");
         letters.put("э", "e");
         letters.put("ю", "yu");
         letters.put("я", "ya");
         letters.put("-", "");
+        letters.put("\"", "");
+        letters.put("1", "");
+        letters.put("2", "");
+        letters.put("3", "");
+        letters.put("4", "");
+        letters.put("5", "");
+        letters.put("6", "");
+        letters.put("7", "");
+        letters.put("8", "");
+        letters.put("9", "");
+        letters.put("0", "");
     }
 
     public static String toTranslit(String text) {
@@ -90,8 +101,6 @@ public class Translit {
 
             if (letters.containsKey(l)) {
                 sb.append(letters.get(l));
-            } else {
-                sb.append(l);
             }
         }
 
