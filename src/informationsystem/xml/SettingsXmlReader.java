@@ -178,11 +178,13 @@ public class SettingsXmlReader extends XmlReader {
                     String id = e.getAttribute("id");
                     getOwners().get(i).getHisProjects().add(new Project(name, id));
                 }
+
                 //add apikey
                 XPathExpression exprApiKey = xpath.compile(".//supervisor[@name='" + owner + "']/apiKey");
                 NodeList hisApikey = (NodeList) exprApiKey.evaluate(configDoc, XPathConstants.NODESET);
                 getOwners().get(i).setApiKey(hisApikey.item(0).getTextContent());
             }
+
             XPathExpression isEasyModeXpath = xpath.compile(".//isEasyMode");
             Node easyModeNode = (Node) isEasyModeXpath.evaluate(configDoc, XPathConstants.NODE);
             if (easyModeNode != null) {

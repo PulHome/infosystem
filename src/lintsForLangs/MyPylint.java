@@ -18,7 +18,6 @@ public class MyPylint {
     }
 
     public void startPylint(String attachmentName) {
-
         try {
             ProcessBuilder builder = new ProcessBuilder(
                     ".\\pylint\\plint_v2.bat", attachmentName);

@@ -18,6 +18,7 @@ public class LintReportMode {
                 return new LintReportMode(NIGHTMARE_MODE, nameAndDescr[1]);
             }
         }
+
         return new LintReportMode(DEFAULT_MODE, "Unknown, using default");
     }
 

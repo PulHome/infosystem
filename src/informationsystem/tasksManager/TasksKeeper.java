@@ -53,12 +53,12 @@ public class TasksKeeper {
     public Map<String, String> getAllTaskFilenamesAndTitles() {
         Map<String, String> allTaskFilenamesAndTitles = new HashMap<>();
 
-        Set<String> setOfTasks = new HashSet<>();
-        for(String task : getAllTaskNames()) {
-            setOfTasks.add(task);
-        }
+//        Set<String> setOfTasks = new HashSet<>();
+//        for (String task : getAllTaskNames()) {
+//            setOfTasks.add(task);
+//        }
 
-        for (String task : setOfTasks) {
+        for (String task : getAllTaskNames()) {
             allTaskFilenamesAndTitles.put(Translit.toTranslit(task).toLowerCase(), task);
         }
 
