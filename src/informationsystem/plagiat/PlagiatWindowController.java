@@ -36,7 +36,7 @@ public class PlagiatWindowController {
 
     public static final String MY_FILES = ".\\myFiles\\";
     public static final String K_DIFF_3 = ".\\KDiff3\\Kdiff3.exe";
-    public static final double LIMIT_FOR_HIGHLIGHTING = 0.15;
+    public static final double LIMIT_FOR_HIGHLIGHTING = 0.18;
     public static final Color COLOR_FOR_HIGHLIGHTING = Color.INDIANRED;
 
     private String currentLanguage = ".java";
@@ -203,6 +203,10 @@ public class PlagiatWindowController {
 
         table.setPrefWidth(Region.USE_COMPUTED_SIZE);
         table.setOnMouseClicked(mouseEvent -> {
+            if (table.getSelectionModel().getSelectedCells().size() == 0) {
+                return;
+            }
+
             int column = table.getSelectionModel().getSelectedCells().get(0).getColumn();
             String name2 = people.get(Math.max((column - 1), 0)).getTaskName();
             String name = table.getSelectionModel().getSelectedItem().getTaskName();

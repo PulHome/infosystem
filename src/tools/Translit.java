@@ -62,7 +62,7 @@ public class Translit {
         letters.put("т", "t");
         letters.put("у", "u");
         letters.put("ф", "f");
-        letters.put("х", "h");
+        letters.put("х", "kh");
         letters.put("ц", "c");
         letters.put("ч", "ch");
         letters.put("ш", "sh");
