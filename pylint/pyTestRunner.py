@@ -34,13 +34,26 @@ def readConfing(pathTocfg):
         else:
             dictOfConfigs["func"] = lambda x, y: (x.strip() == y.strip())
     else:
-        dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()        
-    
+        dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
+
     return dictOfConfigs
 
 
 def checkCrashExists(userAnswer):
     return "traceback (most recent call last):" in userAnswer.lower()
+
+
+def cutPrivateData(userAnswer):
+    result = list()
+    for line in userAnswer.split("\n"):
+        tempArray = line.split("\"", 2)
+        if len(tempArray) > 1:
+            tempArray[1] = "\"" + tempArray[1][tempArray[1].rfind("\\")+1:] + "\""
+            result.append("".join(tempArray))
+        else:
+            result.append(line)
+        result.append("\n")
+    return "".join(result)
 
 
 def processAndTrimAnswer(answer):
@@ -151,6 +164,7 @@ easyMode = False  # в этом режиме показываются входн
 maxExecutionTimeDelay = 2  # max timeout for a task
 ################
 
+
 if __name__ == "__main__":
     fileToCheck = "l_test.py"
     dirToCheck = "recursionLagrange"
@@ -185,7 +199,7 @@ if __name__ == "__main__":
             if needToCompileTestData:
                 cleanMainFromFileToCheck()
                 addExecStdIntoTheEndOfFile()
-                
+
             if needToAddMain and funcToCallInMain:
                 cleanMainFromFileToCheck()
                 addCustomMain(funcToCallInMain)
@@ -230,6 +244,7 @@ if __name__ == "__main__":
                 userAnswer = open("output", "r", encoding="cp1251").read().replace("\r\n", "\n")
 
             if checkCrashExists(userAnswer):
+                userAnswer = cutPrivateData(userAnswer)
                 extraDataForEasyMode = open(dirWithTests + file, encoding="utf-8").read()
                 if easyMode and extraDataForEasyMode:
                     retArray.append(TestReport(TestReport.OTHER, Locale.EasyModeHelp % extraDataForEasyMode))

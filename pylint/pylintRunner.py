@@ -10,7 +10,7 @@ print("Plint started:", " ".join(sys.argv))
 
 while not os.path.isfile(os.path.dirname(sys.path[i]) + r"\python.exe"):
     # print("--- " + os.path.dirname(sys.path[i]) + r"\python.exe")
-    i = i + 1
+    i += 1
 scriptsFolder = os.path.dirname(sys.path[i]) + r"\Scripts"
 # print(scriptsFolder)
 if not os.path.isfile(scriptsFolder + r"\pylint.exe"):
@@ -21,7 +21,7 @@ if len(sys.argv) == 2:
 # else:
 #     realCfg = ["", "config.file"]
 
-if (len(realCfg) == 2):
+if len(realCfg) == 2:
     rcPath = "--rcfile=" + realCfg[1]
     # stream = os.popen(scriptsFolder + r"\pylint.exe " + sys.argv[1])  # + " >" + sys.argv[1] + "_errorReport.txt")
     proc = subprocess.Popen(scriptsFolder + r"\pylint.exe " + rcPath + " " + myStyleConvension + " " + realCfg[0],
