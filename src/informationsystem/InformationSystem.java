@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -57,6 +58,7 @@ public class InformationSystem extends Application {
             stage.setTitle("Проверка задач в системе Redmine");
             stage.setScene(scene);
             stage.setOnHidden(e -> controller.shutdown());
+            stage.getIcons().add(new Image(InformationSystem.class.getResourceAsStream("robot.png")));
             stage.show();
             String oldVersion = ((Text) root.lookup("#versionName"))
                     .getText().replaceAll("[^\\d.]", "");

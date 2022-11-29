@@ -40,6 +40,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxListCell;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -48,6 +49,7 @@ import redmineManagement.ConnectionWithRedmine;
 import redmineManagement.RedmineAlternativeReader;
 import tools.IssueCrawler;
 import tools.PvkLogger;
+import tools.TextUtils;
 import tools.plagiatChecker.JavaPlagiatChecker;
 import tools.plagiatChecker.PythonPlagiatChecker;
 
@@ -118,10 +120,10 @@ public class FXMLDocumentController implements Initializable {
     private Button fileChoose;
 
     @FXML
-    private ListView Students;
+    private ListView students;
 
     @FXML
-    private ListView Tasks;
+    private ListView tasks;
 
     @FXML
     private CheckBox checkboxNeedLint;
@@ -182,7 +184,6 @@ public class FXMLDocumentController implements Initializable {
     private TasksKeeper tasksKeeper;
 
     public void initialize(URL url, ResourceBundle bn) {
-        logger.info("Тест русских букв!\n");
         settingsReader.readConfigXML(projectKeyXml);
 
         settingsReader.getOwners().forEach((ProjectOwner p) -> {
@@ -255,6 +256,7 @@ public class FXMLDocumentController implements Initializable {
                 stage.setTitle("Логгер ПВК");
                 stage.setScene(sceneForLogger);
                 stage.initModality(Modality.NONE);
+                stage.getIcons().add(new Image(FXMLDocumentController.class.getResourceAsStream("robot.png")));
                 stage.setOnHidden(e -> {
                     loggerWindowController.shutdown();
                 });
@@ -271,6 +273,9 @@ public class FXMLDocumentController implements Initializable {
                 stage.setY(y);
                 stage.show();
             }
+            else if (!stage.isFocused()) {
+                stage.requestFocus();
+            }
 
             return loggerWindowController;
         } catch (IOException e) {
@@ -284,6 +289,7 @@ public class FXMLDocumentController implements Initializable {
         if (settingsReader.getSelectedLintMode() == null) {
             return;
         }
+
         lintErrorsNotificationsType.setItems(FXCollections.observableArrayList(getData()));
         ObservableList<LintReportMode> items = lintErrorsNotificationsType.getItems();
         int itemToSelect = items.get(0).getModeNumber();
@@ -293,6 +299,7 @@ public class FXMLDocumentController implements Initializable {
                 break;
             }
         }
+
         lintErrorsNotificationsType.getSelectionModel().select(itemToSelect);
     }
 
@@ -311,21 +318,23 @@ public class FXMLDocumentController implements Initializable {
                     if (comboxUserName.getValue().toString().equals(owner.getName())) {
                         projects = owner.getHisProjects();
                         props.apiAccessKey = owner.getApiKey();
-                        comboxProject.setItems(FXCollections.observableArrayList(projects.stream().map((pr) ->
-                                pr.getProjectName()
-                        ).toArray()));
+                        comboxProject.setItems(
+                                FXCollections.observableArrayList(projects.stream().map(
+                                        pr -> pr.getProjectName()
+                                ).toArray()));
                         break;
                     }
                 }
             }
         }
 
-        String selectedProject = (String) comboxProject.getValue();
-        if (selectedProject != null) {
-            if (!selectedProject.isEmpty()) {
-                props.projectKey = projects.stream().filter(pr ->
-                        pr.getProjectName().equals(selectedProject)).findFirst().get().getId();
-            }
+        String selectedProject = comboxProject.getValue().toString();
+        if (!TextUtils.isNullOrEmpty(selectedProject)) {
+            props.projectKey = projects.stream().filter(pr ->
+                            pr.getProjectName().equals(selectedProject))
+                    .findFirst()
+                    .get()
+                    .getId();
         }
 
         props.url = fillUrlProps(textFieldURL);
@@ -373,6 +382,7 @@ public class FXMLDocumentController implements Initializable {
                 }
             }
         }
+
         reFillDataForCombobox(comboxProject, settingsReader.getProjectNameList(comboxUserName.getValue().toString()));
         reFillDataForCombobox(comboxVersion, new ArrayList<String>());
     }
@@ -388,7 +398,6 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void loadLists(ActionEvent event) {
-
         ArrayList<CellWithCheckBox> users = new ArrayList<>();
         ArrayList<CellWithCheckBox> tasks = new ArrayList<>();
         for (String user : connectionToRedmine.getProjectUsers().stream().sorted().collect(Collectors.toList())) {
@@ -412,14 +421,14 @@ public class FXMLDocumentController implements Initializable {
             }
         };
 
-        Students.setCellFactory(CheckBoxListCell.forListView(CellWithCheckBox::completedProperty, converter));
-        Tasks.setCellFactory(CheckBoxListCell.forListView(CellWithCheckBox::completedProperty, converter));
+        students.setCellFactory(CheckBoxListCell.forListView(CellWithCheckBox::completedProperty, converter));
+        this.tasks.setCellFactory(CheckBoxListCell.forListView(CellWithCheckBox::completedProperty, converter));
 
-        ObservableList<CellWithCheckBox> itemsWithNames = Students.getItems();
+        ObservableList<CellWithCheckBox> itemsWithNames = students.getItems();
         itemsWithNames.clear();
         itemsWithNames.addAll(users);
 
-        ObservableList<CellWithCheckBox> tasksNames = Tasks.getItems();
+        ObservableList<CellWithCheckBox> tasksNames = this.tasks.getItems();
         tasksNames.clear();
         tasksNames.addAll(tasks);
     }
@@ -428,20 +437,20 @@ public class FXMLDocumentController implements Initializable {
     private void copyAndAssignIssues(ActionEvent event) {
         Pattern pattern = Pattern.compile("\\d{6,7}", Pattern.CASE_INSENSITIVE);
 
-        Tasks.getItems().stream().forEach(item -> ((CellWithCheckBox) item).setCompleted(true));
-        Students.getItems().stream().forEach(item -> ((CellWithCheckBox) item).setCompleted(true));
+        tasks.getItems().stream().forEach(item -> ((CellWithCheckBox) item).setCompleted(true));
+        students.getItems().stream().forEach(item -> ((CellWithCheckBox) item).setCompleted(true));
         String nameTo = "";
 
         ArrayList<Integer> issueIds = new ArrayList<>();
-        for (Object task : Tasks.getItems().toArray()) {
+        for (Object task : tasks.getItems().toArray()) {
             Matcher m = pattern.matcher(((CellWithCheckBox) task).getTitle());
             m.find();
             issueIds.add(Integer.parseInt(m.group()));
         }
 
         for (Integer issueId : issueIds) {
-            for (int i = 0; i < Students.getItems().size(); i++) {
-                nameTo = ((CellWithCheckBox) Students.getItems().get(i)).getTitle();
+            for (int i = 0; i < students.getItems().size(); i++) {
+                nameTo = ((CellWithCheckBox) students.getItems().get(i)).getTitle();
                 connectionToRedmine.copyAndAssignIssue(issueId, nameTo);
             }
         }
@@ -454,7 +463,7 @@ public class FXMLDocumentController implements Initializable {
         String nameTo = "";
 
         ArrayList<Integer> issueIds = new ArrayList<>();
-        for (Object task : Tasks.getItems().toArray()) {
+        for (Object task : tasks.getItems().toArray()) {
             CellWithCheckBox cell = (CellWithCheckBox) task;
             if (cell.isCompleted()) {
                 Matcher m = pattern.matcher(cell.getTitle());
@@ -464,7 +473,7 @@ public class FXMLDocumentController implements Initializable {
         }
 
         for (Integer issueId : issueIds) {
-            for (Object student : Students.getItems()) {
+            for (Object student : students.getItems()) {
                 CellWithCheckBox cell = (CellWithCheckBox) student;
                 if (cell.isCompleted()) {
                     nameTo = cell.getTitle();
@@ -478,6 +487,7 @@ public class FXMLDocumentController implements Initializable {
     private void handleButtonAction(ActionEvent event) {
         LoggerWindowController loggerWindow = showLoggerStage(logger);
         logger.setLoggerControllerWindow(loggerWindow);
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -505,12 +515,12 @@ public class FXMLDocumentController implements Initializable {
                 logger.info(ex.toString());
             }
 
-            for (Issue issue : issues) {
-                processIssue(issue, easyMode);
+            if (issues != null) {
+                issues.stream().forEach(issue -> processIssue(issue, easyMode));
             }
 
         }
-        logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "======Finished========\n");
+        logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " ======Finished========\n");
     }
 
     private void processIssue(Issue issue, boolean easyMode) {
@@ -811,12 +821,10 @@ public class FXMLDocumentController implements Initializable {
                     if (res.equals("Java")) {
                         plagiatWindow = new PlagiatWindowController(new JavaPlagiatChecker());
 
-                    }
-                    else if (res.equals("Python")) {
+                    } else if (res.equals("Python")) {
                         plagiatWindow = new PlagiatWindowController(new PythonPlagiatChecker());
-                    }
-                    else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Данный язык пока не поддерживается", ButtonType.CLOSE);
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Данный язык пока не поддерживается", ButtonType.CLOSE);
                         alert.setHeaderText("Данный язык не поддерживается");
                         alert.setTitle("Проверка плагиата");
                         alert.show();
