@@ -1,5 +1,5 @@
 if __name__ == "__main__":
-    print("Test #3")
+    print("Test #4")
     jsonSerializer = JsonSerializer()
 
     jsonSerializer.beginArray()

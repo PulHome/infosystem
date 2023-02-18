@@ -1,5 +1,5 @@
-# код проверяльщика задач, версия 2021.27
-
+# код проверяльщика задач, версия 2022.30
+import json
 import os
 import subprocess
 import sys
