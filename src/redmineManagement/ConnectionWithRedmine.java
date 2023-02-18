@@ -131,10 +131,10 @@ public class ConnectionWithRedmine {
         this.assigneeName = value;
     }
 
-    public Issue setIssueAssigneeNameForIssue(Issue issue, String value) {
+    public Issue setIssueAssigneeNameForIssue(Issue issue, String userName) {
         int id = 0;
         for (Membership user : projectsUsers) {
-            if (user.getUserName().equalsIgnoreCase(value)) {
+            if (user.getUserName().equalsIgnoreCase(userName)) {
                 id = user.getUserId();
                 break;
             }
@@ -142,9 +142,9 @@ public class ConnectionWithRedmine {
 
         if (id != 0) {
             issue.setAssigneeId(id);
-            issue.setAssigneeName(value);
+            issue.setAssigneeName(userName);
         } else {
-            logger.warning("Can't find user " + value);
+            logger.warning("Can't find user " + userName);
         }
 
         return issue;
@@ -233,7 +233,7 @@ public class ConnectionWithRedmine {
         }
     }
 
-    private Optional<Attachment> getLatestCheckableAttach(List<Attachment> issueAttachments) {
+    public Optional<Attachment> getLatestCheckableAttach(List<Attachment> issueAttachments) {
         if (issueAttachments == null && issueAttachments.size() == 0) {
             return Optional.empty();
         }
@@ -460,7 +460,7 @@ public class ConnectionWithRedmine {
         return isPLintSuccessful;
     }
 
-    private void downloadAttachments(String url, String apikey, String fileName) throws IOException {
+    public void downloadAttachments(String url, String apikey, String fileName) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
@@ -748,7 +748,7 @@ public class ConnectionWithRedmine {
 
     //тут надо что-то сделать с этим файлом: убить кириллицу и пробелы,
     // оставив только латиницу
-    private String makeUsableFileName(String fileName, String author, String taskTitle) {
+    public String makeUsableFileName(String fileName, String author, String taskTitle) {
         fileName = (Translit.toTranslit(author.toLowerCase())
                 + "_" + Translit.toTranslit(taskTitle.toLowerCase())
                 + "_" + fileName.toLowerCase())
@@ -843,4 +843,28 @@ public class ConnectionWithRedmine {
     }
 
     private static PvkLogger logger = PvkLogger.getLogger(FXMLDocumentController.class.getSimpleName(), false);
+
+    public ProjectManager getProjectManager() {
+        return projectManager;
+    }
+
+    public RedmineManager getRedmineManager() {
+        return mgr;
+    }
+
+    public String getProjectKey() {
+        return projectKey;
+    }
+
+    public void setProjectKey(String projectKey) {
+        this.projectKey = projectKey;
+        try {
+            mgr.getTransport().setObjectsPerPage(100);
+            mgr.setObjectsPerPage(100);
+            projectsUsers = mgr.getProjectManager().getProjectMembers(this.projectKey);
+            versions = projectManager.getVersions(projectManager.getProjectByKey(projectKey).getId());
+        } catch (RedmineException ex) {
+            logger.info(ex.toString());
+        }
+    }
 }

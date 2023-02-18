@@ -54,9 +54,11 @@ import tools.plagiatChecker.JavaPlagiatChecker;
 import tools.plagiatChecker.PythonPlagiatChecker;
 
 /**
- * @author user
+ * @author Zerg0s
  */
 public class FXMLDocumentController implements Initializable {
+    private final DateTimeFormatter formatter =
+            DateTimeFormatter.ofPattern("dd.MM.YYYY  HH:mm:ss", Locale.getDefault());
 
     private final TasksXmlReader tasksReader = new TasksXmlReader(".\\TestsInfo_v2.xml");
     private final SettingsXmlReader settingsReader = new SettingsXmlReader(".\\ProjectKey.xml");
@@ -272,8 +274,7 @@ public class FXMLDocumentController implements Initializable {
                 stage.setX(x);
                 stage.setY(y);
                 stage.show();
-            }
-            else if (!stage.isFocused()) {
+            } else if (!stage.isFocused()) {
                 stage.requestFocus();
             }
 
@@ -498,7 +499,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void runMainCheckAllTasks() {
-        logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + ": ======Started========\n");
+        logger.info(LocalDateTime.now().format(formatter) + ": ======Started========\n");
         connectionToRedmine.setProfessorName(comboxUserName.getValue().toString());
 
         boolean easyMode = easyModeCheck.isSelected();
@@ -520,7 +521,7 @@ public class FXMLDocumentController implements Initializable {
             }
 
         }
-        logger.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " ======Finished========\n");
+        logger.info(LocalDateTime.now().format(formatter) + ": ======Finished=======\n");
     }
 
     private void processIssue(Issue issue, boolean easyMode) {

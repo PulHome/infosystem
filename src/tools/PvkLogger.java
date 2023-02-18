@@ -38,6 +38,7 @@ public class PvkLogger {
         if (instance == null) {
             instance = new PvkLogger(name, needConsole);
         }
+
         return instance;
     }
 
@@ -93,6 +94,4 @@ public class PvkLogger {
     private void flushAll() {
         streamHandler.flush();
     }
-
-
 }
