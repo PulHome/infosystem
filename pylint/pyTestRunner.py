@@ -166,8 +166,8 @@ maxExecutionTimeDelay = 2  # max timeout for a task
 
 
 if __name__ == "__main__":
-    fileToCheck = "l_test.py"
-    dirToCheck = "recursionLagrange"
+    fileToCheck = "classTreeDepth.py"
+    dirToCheck = "classTreeDepth"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
