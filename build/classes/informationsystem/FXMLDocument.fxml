@@ -112,14 +112,14 @@
             <content>
                 <AnchorPane prefHeight="255.0" prefWidth="436.0">
                     <children>
-                        <ListView fx:id="Students" layoutX="50.0" layoutY="25.0" prefWidth="150.0">
+                        <ListView fx:id="students" layoutX="50.0" layoutY="25.0" prefWidth="150.0">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
                                     <String fx:value="Empty" />
                                 </FXCollections>
                             </items>
                         </ListView>
-                        <ListView fx:id="Tasks" layoutX="221.0" layoutY="25.0" prefWidth="150.0">
+                        <ListView fx:id="tasks" layoutX="221.0" layoutY="25.0" prefWidth="150.0">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
                                     <String fx:value="Empty" />
