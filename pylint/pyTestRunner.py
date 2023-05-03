@@ -1,4 +1,4 @@
-# код проверяльщика задач, версия 2022.30
+# код проверяльщика задач, версия 2023.31
 import json
 import os
 import subprocess
@@ -10,6 +10,16 @@ from typing import List
 from pep9 import funcCheck
 from localization import Locale
 from testReport import TestReport
+
+import xmlSortChecker
+
+
+#add non default complex checks here
+def executeChecker(checker, cmd, input, correctAnswers):
+    if checker == "xmlSortChecker":
+        return xmlSortChecker.check(cmd, input, correctAnswers[0])
+
+    return False
 
 
 # read the correct answer for test## from .a file
@@ -25,16 +35,14 @@ def readConfing(pathTocfg):
         keypairs = fileContent.split("\t")
         dictOfConfigs = {k: v for k, v in map(lambda x: x.split("=", 1), keypairs)}
     # В словарь записан полный конфиг. В поле func функция проверки
-    if "func" in dictOfConfigs:
-        if dictOfConfigs["func"] == "contains":
-            dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
-        elif "lambda" in dictOfConfigs["func"]:
-            lambdaStr = dictOfConfigs["func"]
-            dictOfConfigs["func"] = lambda x, y: eval(lambdaStr)(x, y)
-        else:
-            dictOfConfigs["func"] = lambda x, y: (x.strip() == y.strip())
-    else:
+    if "func" not in dictOfConfigs:
+        dictOfConfigs["func"] = "contains"
+
+    if dictOfConfigs["func"] == "contains":
         dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
+    elif "lambda" in dictOfConfigs["func"]:
+        lambdaStr = dictOfConfigs["func"]
+        dictOfConfigs["func"] = lambda x, y: eval(lambdaStr)(x, y)
 
     return dictOfConfigs
 
@@ -48,11 +56,13 @@ def cutPrivateData(userAnswer):
     for line in userAnswer.split("\n"):
         tempArray = line.split("\"", 2)
         if len(tempArray) > 1:
-            tempArray[1] = "\"" + tempArray[1][tempArray[1].rfind("\\")+1:] + "\""
+            tempArray[1] = "\"" + tempArray[1][tempArray[1].rfind("\\") + 1:] + "\""
             result.append("".join(tempArray))
         else:
             result.append(line)
+
         result.append("\n")
+
     return "".join(result)
 
 
@@ -68,10 +78,12 @@ def cleanMainFromFileToCheck():
             isMainFound = True
             break
         sourceFileWithoutMain += line
+
     if isMainFound:
         text_file = open(fileToCheck, "w+", encoding="utf-8")
         text_file.write(sourceFileWithoutMain)
         text_file.close()
+
     return isMainFound
 
 
@@ -107,6 +119,7 @@ def checkConfigurationAndRestrictions(testConfiguration):
         for line in open(fileToCheck, "r", encoding="utf-8").readlines():
             if line.strip().startswith("#"): continue
             sourceFileWithoutHeader += line + "\n"
+
         if not funcCheck(sourceFileWithoutHeader):
             print(f"{Locale.NotInFunctional}\n{Locale.Failed}")
             exit()
@@ -142,6 +155,7 @@ def getCorrectAnswers(dirWithTests, fileWithTests):
     readAnswer = readAnswerFile(dirWithTests + fileWithTests[:fileWithTests.rfind(".")] + ".a")
     if readAnswer is None:
         readAnswer = ' '
+
     correctAnswers.append(readAnswer)
 
     # вдруг будут тесты с более чем 1 правильными ответами
@@ -154,20 +168,22 @@ def getCorrectAnswers(dirWithTests, fileWithTests):
             break
         correctAnswers.append(correctAnswer2)
         i += 1
+
     return correctAnswers
 
 
 ################
 # Manual Config Section
-
 easyMode = False  # в этом режиме показываются входные данные для упавших тестов.
 maxExecutionTimeDelay = 2  # max timeout for a task
+
+
 ################
 
 
-if __name__ == "__main__":
-    fileToCheck = "classTreeDepth.py"
-    dirToCheck = "classTreeDepth"
+def main():
+    fileToCheck = "xmlsort.py"
+    dirToCheck = "processAndSortXml"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
@@ -204,18 +220,23 @@ if __name__ == "__main__":
                 cleanMainFromFileToCheck()
                 addCustomMain(funcToCallInMain)
 
+            # надо проверить .a файлы с ответами
+            correctAnswers = getCorrectAnswers(dirWithTests, file)
+
+            if testConfiguration.get("doUseStandAloneTests"):
+                cmd = f"python -u {fileToCheck}"
+                if executeChecker(testConfiguration.get("func"), cmd, inputDataFile, correctAnswers):
+                    print(Locale.Passed)
+                else:
+                    print(Locale.Failed)
+
+                return
+
             proc = subprocess.Popen(["python", "-u", fileToCheck],
                                     stdout=open("output", "w+", encoding="utf-8"),
                                     stderr=subprocess.STDOUT,
                                     stdin=open(inputDataFile, encoding="utf-8"),
                                     )
-            # вычитываем исходный .t файл и помещаем всё содержимое во входящий поток к тестируемой программе
-            # if "input" in testConfiguration:
-            #     copy2(myDir + file, str(testConfiguration["input"]))
-            #     inputDataForUsersProgram = open(str(testConfiguration["input"]), "rb").read()
-            # else:
-            #     inputDataForUsersProgram = open(myDir + file, "rb").read()
-            #     proc.stdin.write(inputDataForUsersProgram)
 
             # ждем отклика в течение таймаута, в outs - результат работы программы
             try:
@@ -229,15 +250,12 @@ if __name__ == "__main__":
                 if "input" in testConfiguration and os.path.exists(str(testConfiguration["input"])):
                     os.remove(str(testConfiguration["input"]))
 
-            # надо проверить .a файлы с ответами
-            correctAnswers = getCorrectAnswers(dirWithTests, file)
-
             # функция проверки правильного ответа - пока единственный обязательный параметр конфига
             funcToCheckAnswer = testConfiguration.get("func", None)
             if funcToCheckAnswer is None:
                 break
 
-            # кодировочный костыль, иногда приходит в кодировке анси
+            # кодировочный костыль, иногда приходит в кодировке ansii
             try:
                 userAnswer = open("output", "r", encoding="utf-8").read().replace("\r\n", "\n")
             except UnicodeDecodeError:
@@ -293,3 +311,7 @@ if __name__ == "__main__":
         print(Locale.Passed)
     else:
         print(Locale.Total, Locale.Failed, sep="\n")
+
+
+if __name__ == "__main__":
+    main()
