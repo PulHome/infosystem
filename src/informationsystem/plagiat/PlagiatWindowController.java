@@ -133,22 +133,8 @@ public class PlagiatWindowController {
                 finalSortedList.add(allTasksMap.get(fileNames.get(j)));
             }
         }
-        logger.info(finalSortedList);
-        //TODO: Need to be optimised. Looking thorugh all the list every time!!!!
-//        for (int i = 0; i < keeper.getAllTaskNames().size(); i++) {
-//            String ruTaskName = keeper.getAllTaskNames().get(i);
-//            for (int j = fileNames.size() - 1; j >= 0; j--) {
-//                if (TextUtils.isNullOrEmpty(ruTaskName) || TextUtils.isNullOrEmpty(fileNames.get(j))) {
-//                    continue;
-//                }
-//
-//                if (Translit.toTranslit(ruTaskName).toLowerCase().contains(fileNames.get(j))) {
-//                    finalSortedList.add(ruTaskName);
-//                    break;
-//                }
-//            }
-//        }
 
+        logger.info(finalSortedList);
         return new HashSet<>(finalSortedList).stream().toList();
     }
 

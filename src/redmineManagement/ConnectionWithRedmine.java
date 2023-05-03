@@ -396,7 +396,6 @@ public class ConnectionWithRedmine {
                     }
                 }
                 task.getIssue().setNotes(notesForIssue + "\nSome corrections are required.");
-                this.updateIssue(task.getIssue());
             }
 
             lintResult = false;
@@ -405,7 +404,6 @@ public class ConnectionWithRedmine {
             lintResult = true;
         }
 
-        this.updateIssue(task.getIssue());
         return lintResult;
     }
 

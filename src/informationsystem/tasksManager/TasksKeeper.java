@@ -113,10 +113,12 @@ public class TasksKeeper {
     }
 
     public List<String> getAllIterations() {
-        return allTasks.stream()
+        List<String> retList = allTasks.stream()
                 .map(TaskInfo::getIterationPath).distinct()
                 .sorted()
                 .collect(Collectors.toList());
+
+        return retList;
     }
 
     public void addNewTask(TaskInfo task) {

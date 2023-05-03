@@ -81,23 +81,27 @@ public class JavaPlagiatChecker implements IPlagiatChecker {
                 try {
                     codeComparer = new CodeComparer(createSimpleArrayList(javaFiles.get(i)),
                             createSimpleArrayList(otherFile));
-                    if (!comparisonMap.containsKey(otherFile.toString())) {
-                        comparisonMap.put(otherFile.toString(), new ArrayList<>());
-                    }
-                } catch (Exception e) {
-                    logger.error("CodeComparer crash: " + e);
+                   } catch (Exception e) {
+                    logger.error("\nCodeComparer crash: " + e);
+                    logger.error("\nFiles:\n" + javaFiles.get(i).toString() + "\n" + otherFile);
                 }
 
-                if (codeComparer == null) {
-                    continue;
-                } else {
-                    codeComparer.compare();
-                    comparisonMap.get(javaFiles.get(i).toString())
-                            .add(getMapOfData(otherFile, codeComparer.getResult()));
-                    comparisonMap.get(otherFile.toString())
-                            .add(getMapOfData(javaFiles.get(i), codeComparer.getResult()));
+                if (!comparisonMap.containsKey(otherFile.toString())) {
+                    comparisonMap.put(otherFile.toString(), new ArrayList<>());
                 }
+
+                double result = 2.0;
+                if (codeComparer != null) {
+                    codeComparer.compare();
+                    result = codeComparer.getResult();
+                }
+
+                comparisonMap.get(javaFiles.get(i).toString())
+                        .add(getMapOfData(otherFile, result));
+                comparisonMap.get(otherFile.toString())
+                        .add(getMapOfData(javaFiles.get(i), result));
             }
+
             comparisonMap.get(javaFiles.get(i).toString())
                     .add(getMapOfData(javaFiles.get(i), 0.0));
         }
