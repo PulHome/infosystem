@@ -94,7 +94,7 @@ maxExecutionTimeDelay = 2  # max timeout for a task
 ################
 
 def main():
-    fileToCheck = "Main.class"
+    fileToCheck = "TaskTwo.class"
     dirToCheck = "processAndSortXml"
     retArray = list()
     easyMode = True

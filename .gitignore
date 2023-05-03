@@ -1,5 +1,5 @@
 *.iml
-.idea
+/.idea
 /JavaDir/ru/mai/**
 /myFiles/**
 ./ProjectKey.xml
