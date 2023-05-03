@@ -2,7 +2,7 @@
 /.idea
 /JavaDir/ru/mai/**
 /myFiles/**
-./ProjectKey.xml
+ProjectKey.xml
 *.class
 */input.txt
 out/**
@@ -11,6 +11,8 @@ JavaDir/.idea
 javaFx/lib/src.zip
 pylint/__pycache__/**
 JavaDir/__pycache__/**
+
+/javaFx/**
 
 /JavaDir/myFiles/**
 /JavaDir/output
