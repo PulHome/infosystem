@@ -1,36 +1,37 @@
 import os
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
-
 import subprocess
-import sys
 
 maxExecutionTimeDelay = 3
+
+def removeSpaces(binStr):
+    return binStr.decode('utf-8').replace("\n", "").replace("\t", "").replace(" ", "")
 
 
 def checkCorrrectAnswer(correctAnswer):
     etalonRoot = ET.fromstring(correctAnswer)
-    etalonReplay = etalonRoot.find(".//outPutFile")
-    etalonStrRaw = etalonReplay.text
+    userReplyFile = etalonRoot.find(".//outPutFile")
+    userReply = userReplyFile.text
 
-    fileName = etalonReplay.attrib['name']
+    fileName = userReplyFile.attrib['name']
     if not os.path.isfile(fileName):
-        print(f"Reply was not found. Was looking for {fileName}")
+        print(f"Your reply was not found. Was looking for .\\{fileName}")
         return False
     userAnswer = ET.parse(fileName)
     userRoot = userAnswer.getroot()
     userReplyString = tostring(userRoot, encoding='utf8', method='xml')
 
-    etalonParsed = ET.fromstring(etalonStrRaw)
+    etalonParsed = ET.fromstring(userReply)
     etalonString = tostring(etalonParsed, encoding='utf8', method='xml')
-    if userReplyString == etalonString:
+
+    if removeSpaces(userReplyString) == removeSpaces(etalonString):
         os.remove(fileName)
         return True
     else:
-        print("Recieved:\n", userRoot)
+        print("Recieved:\n", userReplyString)
         print("Expected:\n", etalonString)
         return False
-
 
 
 def createInputFiles(inputFile):
@@ -40,7 +41,7 @@ def createInputFiles(inputFile):
 
     for inputFile in listOfInputFiles:
         fileNames.append(inputFile.attrib['name'])
-        open(fileNames[-1],"w+",encoding="utf-8").write(inputFile.text)
+        open(fileNames[-1], "w+", encoding="utf-8").write(inputFile.text)
     return fileNames
 
 

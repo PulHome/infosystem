@@ -1,36 +1,35 @@
 import os
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
-import re
 import subprocess
-import sys
 
 maxExecutionTimeDelay = 3
+
+def removeSpaces(binStr):
+    return binStr.decode('utf-8').replace("\n", "").replace("\t", "").replace(" ", "")
 
 
 def checkCorrrectAnswer(correctAnswer):
     etalonRoot = ET.fromstring(correctAnswer)
-    etalonReplay = etalonRoot.find(".//outPutFile")
-    etalonStrRaw = etalonReplay.text
+    userReplyFile = etalonRoot.find(".//outPutFile")
+    userReply = userReplyFile.text
 
-    fileName = etalonReplay.attrib['name']
+    fileName = userReplyFile.attrib['name']
     if not os.path.isfile(fileName):
-        print(f"Reply was not found. Was looking for {fileName}")
+        print(f"Your reply was not found. Was looking for .\\{fileName}")
         return False
     userAnswer = ET.parse(fileName)
     userRoot = userAnswer.getroot()
     userReplyString = tostring(userRoot, encoding='utf8', method='xml')
 
-    etalonParsed = ET.fromstring(etalonStrRaw)
+    etalonParsed = ET.fromstring(userReply)
     etalonString = tostring(etalonParsed, encoding='utf8', method='xml')
-    pattern = r"\s"
-    users = re.sub(pattern, "", userReplyString.decode('utf-8'))
-    etalons = re.sub(pattern, "", etalonString.decode('utf-8'))
-    if users == etalons:
-        #os.remove(fileName)
+
+    if removeSpaces(userReplyString) == removeSpaces(etalonString):
+        os.remove(fileName)
         return True
     else:
-        print("Recieved:\n", userRoot)
+        print("Recieved:\n", userReplyString)
         print("Expected:\n", etalonString)
         return False
 
@@ -63,7 +62,7 @@ def check(cmd, inputDataFile, correctAnswer):
     except subprocess.TimeoutExpired:
         proc.kill()
         outs, errs = proc.communicate()
-        # retArray.append("Timeout")
+        retArray.append("Timeout")
 
     # finally:
     #     os.remove(inputFiles)
