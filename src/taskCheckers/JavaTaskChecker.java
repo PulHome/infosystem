@@ -59,7 +59,7 @@ public class JavaTaskChecker extends TaskChecker {
 
             try (Stream<Path> walk = Files.walk(unzipTo.toPath())) {
                 List<String> result = walk.map(x -> x.toString())
-                        .filter(f -> f.endsWith(".java")).collect(Collectors.toList());
+                        .filter(f -> f.endsWith(".java")).toList();
                 File mainFile = null;
                 boolean wasMainFound = false;
                 for (String file : result) {
@@ -130,8 +130,9 @@ public class JavaTaskChecker extends TaskChecker {
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             while ((line = r.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
+
             if (p.exitValue() != 0) {
                 // достаточно просто return, все ошибки останутся в буффере sb, и будут обработаны дальше
                 return;
@@ -140,6 +141,7 @@ public class JavaTaskChecker extends TaskChecker {
             PvkLogger.getLogger(MyPylint.class.getName())
                     .error("Failed to compile Java code! " + ex.getMessage());
         }
+
         RunTestsForMainClass(sb, data);
         //removeTempFiles(data);
     }
@@ -160,7 +162,7 @@ public class JavaTaskChecker extends TaskChecker {
             //BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), "cp1251"));
             String line;
             while ((line = r.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
         } catch (IOException ex) {
             Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
@@ -177,7 +179,7 @@ public class JavaTaskChecker extends TaskChecker {
                 if (line.contains(maiPackage)) {
                     line = line.replace(maiPackage, "");
                 }
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
             Files.write(new File(fileName).toPath(), Collections.singleton(sb.toString()));
         } catch (IOException ex) {
@@ -187,6 +189,7 @@ public class JavaTaskChecker extends TaskChecker {
     }
 
     private String getCorrectJavaName(String fileName) {
+        //TODO: Fix for classes which don't have public modifier.
         try {
             List<String> linesOfFile = Files.readAllLines(new File(fileName).toPath());
             for (String line : linesOfFile) {
@@ -197,6 +200,7 @@ public class JavaTaskChecker extends TaskChecker {
         } catch (IOException ex) {
             Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return fileName;
     }
 
