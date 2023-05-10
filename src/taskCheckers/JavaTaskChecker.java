@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaTaskChecker extends TaskChecker {
@@ -58,7 +57,7 @@ public class JavaTaskChecker extends TaskChecker {
             boolean unzipResult = zip.unzipFileToDir(workingDir + data.fileName, unzipTo);
 
             try (Stream<Path> walk = Files.walk(unzipTo.toPath())) {
-                List<String> result = walk.map(x -> x.toString())
+                List<String> result = walk.map(Path::toString)
                         .filter(f -> f.endsWith(".java")).toList();
                 File mainFile = null;
                 boolean wasMainFound = false;
@@ -85,13 +84,15 @@ public class JavaTaskChecker extends TaskChecker {
                     }
                 }
                 //compile 'main' file
-                data.fileName = mainFile.getAbsolutePath();
+                if (mainFile != null) {
+                    data.fileName = mainFile.getAbsolutePath();
+                }
 
                 //send to python check .class with full path of the main file
                 JavaCompileSingleJavaFile(sbResultOfTests, data, false);
 
             } catch (IOException e) {
-                e.printStackTrace();
+                PvkLogger.getLogger(this.getClass().getSimpleName()).error(e.toString());
             }
         }
         //Logger.getLogger(MyPylint.class.getName()).log(Level.INFO, sb.toString());
