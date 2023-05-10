@@ -1,0 +1,14 @@
+<root>
+<outPutFile name="output.xml">
+<![CDATA[<xml>
+	<MyStoreDescription>This is my best store!
+	</MyStoreDescription>
+	<MyBooksCollection value="NotForResale"/>
+	<AAA>
+		<Book Author="aaa" Name="Mtsyry"/>
+		<Book Author="bbb" Name="Captains Daughter"/>
+	</AAA>
+	</xml>
+]]>
+</outPutFile>
+</root>
