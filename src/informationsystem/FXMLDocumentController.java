@@ -938,6 +938,7 @@ public class FXMLDocumentController implements Initializable {
 
         cbxAllAvailableTasks.setItems(FXCollections.observableArrayList(tasksKeeper.getAllTaskNames()));
         cbxAllAvailableIterations.setItems(FXCollections.observableArrayList(tasksKeeper.getAllIterations()));
+
         txtTestInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if ((cbxTestsForTask.getValue() == null) || oldValue.isBlank()
                     || newValue.isBlank() || newValue.equals(oldValue)) {
@@ -945,7 +946,6 @@ public class FXMLDocumentController implements Initializable {
             }
             tasksKeeper.getSelectedTask().setTestInput(cbxTestsForTask.getValue(), newValue);
         });
-
         txtTestOutput.textProperty().addListener((observable, oldValue, newValue) -> {
             if ((cbxTestsForTask.getValue() == null) || oldValue.isBlank()
                     || newValue.isBlank() || newValue.equals(oldValue)) {
@@ -953,6 +953,8 @@ public class FXMLDocumentController implements Initializable {
             }
             tasksKeeper.getSelectedTask().setTestOutput(cbxTestsForTask.getValue(), newValue);
         });
+
+        handleIterationChoice();
     }
 
     @FXML
