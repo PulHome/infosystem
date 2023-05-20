@@ -34,6 +34,15 @@ public class TaskInfo {
         this.taskPath = Translit.toTranslit(issue.getSubject());
     }
 
+    public TaskInfo(TaskInfo otherTask) {
+        this.taskBody = otherTask.taskBody;
+        this.taskPath = otherTask.taskPath;
+        this.taskName = otherTask.taskName;
+        this.iterationPath = otherTask.iterationPath;
+        this.taskId = otherTask.taskId;
+        this.allAvailableTests = otherTask.allAvailableTests;
+    }
+
     public String getTaskId() {
         return taskId;
     }

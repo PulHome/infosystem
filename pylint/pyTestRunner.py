@@ -285,7 +285,8 @@ def main():
             isAnswerCorrect = False
             if "answer_code" in testConfiguration:
                 if testConfiguration["answer_code"] == "mod23":
-                    isAnswerCorrect = (int(userAnswer) % 23 == 0)
+                    clearAnswer = int(userAnswer)
+                    isAnswerCorrect = (clearAnswer % 23 == 0)
             elif userAnswer is not None and correctAnswers[0] is not None:
                 for aCorrectAnswer in correctAnswers:
                     isAnswerCorrect |= funcToCheckAnswer(aCorrectAnswer, userAnswer)

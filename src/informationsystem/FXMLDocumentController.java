@@ -146,7 +146,7 @@ public class FXMLDocumentController implements Initializable {
     private ComboBox<String> cbxAllAvailableTasks;
 
     @FXML
-    private ComboBox<String> cbxAllAvailableIterations;
+    private ComboBox<String> cbxAllTaskAreas;
 
     @FXML
     private ComboBox<String> cbxTestsForTask;
@@ -763,7 +763,7 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void addTaskToMyIteration(ActionEvent event) {
-        TaskInfo task = tasksKeeper.getSelectedTask();
+        TaskInfo task = new TaskInfo(tasksKeeper.getSelectedTask());
         task.setIterationPath(props.iterationName);
         connectionToRedmine.createNewIssueToRedmine(task);
     }
@@ -937,7 +937,7 @@ public class FXMLDocumentController implements Initializable {
         }
 
         cbxAllAvailableTasks.setItems(FXCollections.observableArrayList(tasksKeeper.getAllTaskNames()));
-        cbxAllAvailableIterations.setItems(FXCollections.observableArrayList(tasksKeeper.getAllIterations()));
+        cbxAllTaskAreas.setItems(FXCollections.observableArrayList(tasksKeeper.getAllIterations()));
 
         txtTestInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if ((cbxTestsForTask.getValue() == null) || oldValue.isBlank()
@@ -954,12 +954,12 @@ public class FXMLDocumentController implements Initializable {
             tasksKeeper.getSelectedTask().setTestOutput(cbxTestsForTask.getValue(), newValue);
         });
 
-        handleIterationChoice();
+        handleTaskAreaChoice();
     }
 
     @FXML
-    private void handleIterationChoice() {
-        String selected = cbxAllAvailableIterations.getSelectionModel().getSelectedItem();
+    private void handleTaskAreaChoice() {
+        String selected = cbxAllTaskAreas.getSelectionModel().getSelectedItem();
         if (selected == null) {
             return;
         }
@@ -1004,7 +1004,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void addNewTask(ActionEvent event) {
         TaskInfo task = new TaskInfo();
-        task.setIterationPath(cbxAllAvailableIterations.getValue());
+        task.setIterationPath(cbxAllTaskAreas.getValue());
         tasksKeeper.setSelectedTask(null);
         openTaskStage(event, task);
     }

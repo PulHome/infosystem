@@ -435,7 +435,7 @@
                                     <Insets bottom="5.0" top="5.0" />
                                  </padding>
                               </HBox>
-                              <ComboBox id="cbxLocalTasks" fx:id="cbxAllAvailableIterations" minHeight="-Infinity" minWidth="-Infinity" onAction="#handleIterationChoice" prefHeight="25.0" prefWidth="176.0" promptText="Выбрать тему" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+                              <ComboBox id="cbxLocalTasks" fx:id="cbxAllTaskAreas" minHeight="-Infinity" minWidth="-Infinity" onAction="#handleTaskAreaChoice" prefHeight="25.0" prefWidth="176.0" promptText="Выбрать тему" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
                                  <GridPane.margin>
                                     <Insets left="10.0" />
                                  </GridPane.margin>
