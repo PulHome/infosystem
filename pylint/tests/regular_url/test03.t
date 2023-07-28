@@ -1,0 +1,1 @@
+https://www.hostedredmine.com/

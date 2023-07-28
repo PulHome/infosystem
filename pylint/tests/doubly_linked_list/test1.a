@@ -1,0 +1,24 @@
+Size: 5
+ToString: [1,2,3,4,5]
+Get: 2
+Remove: 2
+Size: 4
+ToString: [1,3,4,5]
+Get: 3
+Size: 5
+ToString: [9,1,3,4,5]
+Size: 6
+ToString: [9,1,3,4,5,11]
+Contains: true
+Contains: false
+IndexOf: 3
+IndexOf: -1
+Size: 6
+ToString: [9,1,3,4,5,11]
+ToArray: 9 1 3 4 5 11
+true
+Size: 0
+Empty: true
+ToString:
+Equals: true
+Equals: false

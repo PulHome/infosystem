@@ -1,0 +1,1 @@
+mailbox@hostname.ru

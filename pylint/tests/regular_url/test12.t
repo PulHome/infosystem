@@ -1,0 +1,1 @@
+http://www.hostedredmine.com:80?filter=any#issue
