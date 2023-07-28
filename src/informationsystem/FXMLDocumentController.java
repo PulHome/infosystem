@@ -558,10 +558,7 @@ public class FXMLDocumentController implements Initializable {
             //connectionToRedmine.setVersionForCheck(comboxVersion.getValue().toString(), issue);
             String student = getStudentName(journalReader.getJournals(issue.getId().toString()), connectionToRedmine.getProfessorName());
             logger.info("Student is " + student);
-            ConfiguredTask confTask = new ConfiguredTask(issue, student,
-                    needForced,
-                    connectionToRedmine.getLint(), pyRating, javaErrorLimit,
-                    easyMode, (LintReportMode) lintErrorsNotificationsType.getValue());
+            ConfiguredTask confTask = new ConfiguredTaskBuilder().setIssue(issue).setTaskCompleter(student).setIsNeededForceCheck(needForced).setIsLintRequired(connectionToRedmine.getLint()).setRequiredPythonRating(pyRating).setJavaErrors(javaErrorLimit).setEasyMode(easyMode).setLintReportMode((LintReportMode) lintErrorsNotificationsType.getValue()).createConfiguredTask();
             connectionToRedmine.checkIssueAttachments(confTask);
 
             journals = journalReader.getJournals(issue.getId().toString());
@@ -771,16 +768,16 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void handleButtonSingleIssueCheckAction(ActionEvent event) {
         String issueNum = IssueToTestNumber.getText();
-        Integer issueNumLong = 0;
+        int issueNumLong = 0;
         boolean easyMode = easyModeCheck.isSelected();
         connectionToRedmine.setProfessorName(comboxUserName.getValue().toString());
         try {
             issueNumLong = Integer.parseInt(issueNum);
             Issue currentIssue = connectionToRedmine.getIssueByID(issueNumLong);
-            Boolean isLintNeeded = checkboxNeedLint.isSelected();
-            Boolean isForceCheck = true;
-            Double pyRating = 10.0;
-            int javaErrorLimit = 5;
+            boolean isLintNeeded = checkboxNeedLint.isSelected();
+            boolean isForceCheck = true;
+            double pyRating = 10.0;
+            int javaErrorLimit = 0;
             if (comboBoxPythonRating.getValue() != null) {
                 pyRating = Double.parseDouble(comboBoxPythonRating.getValue().toString());
             }
@@ -791,16 +788,23 @@ public class FXMLDocumentController implements Initializable {
 
             String student = getStudentName(journalReader.getJournals(currentIssue.getId().toString()), connectionToRedmine.getProfessorName());
 
-            ConfiguredTask task = new ConfiguredTask(currentIssue, student, isForceCheck,
-                    isLintNeeded, pyRating, javaErrorLimit, easyMode,
-                    (LintReportMode) lintErrorsNotificationsType.getValue());
+            ConfiguredTask task = new ConfiguredTaskBuilder()
+                    .setIssue(currentIssue)
+                    .setTaskCompleter(student)
+                    .setIsNeededForceCheck(isForceCheck)
+                    .setIsLintRequired(isLintNeeded)
+                    .setRequiredPythonRating(pyRating)
+                    .setJavaErrors(javaErrorLimit)
+                    .setEasyMode(easyMode)
+                    .setLintReportMode((LintReportMode) lintErrorsNotificationsType.getValue())
+                    .createConfiguredTask();
+
             if (task.getLintReportMode() == null) {
                 task.setLintReportMode(new LintReportMode(0, "Default"));
             }
+
             logger.info(task.toString());
-
             this.processConfiguredIssue(task);
-
         } catch (Exception ex) {
             logger.info(ex.toString());
         }

@@ -175,7 +175,7 @@ public class ConnectionWithRedmine {
         //Check only latest attach, the rest are already history
         Optional<Attachment> nullableAttach = getLatestCheckableAttach(issueAttachments);
         Attachment attach = null;
-        if (!nullableAttach.isPresent()) {
+        if (nullableAttach.isEmpty()) {
             logger.error("Can't find suitable attaches for ");
             logger.logHtmlIssueLink(task.getIssue(), url + "/issues/" + task.getIssue().getId());
             logger.info("");
@@ -183,6 +183,9 @@ public class ConnectionWithRedmine {
         }
 
         attach = nullableAttach.get();
+        if (!TextUtils.isNullOrEmpty(attach.getAuthor().getFullName())) {
+            task.setTaskCompleter(attach.getAuthor().getFullName());
+        }
         checkSingleFileAttachment(attach, task);
     }
 
@@ -307,6 +310,7 @@ public class ConnectionWithRedmine {
             if (processResult == 1 && this.returnBackIfAllOk) {
                 issue.setStatusId(STATUS_ID_CLOSED);
             }
+
             if (processResult == 1 && !this.returnBackIfAllOk) {
                 issue.setStatusId(STATUS_ID_APPROVED);
             }
