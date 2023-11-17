@@ -13,6 +13,7 @@ from testReport import TestReport
 
 import xmlSortChecker
 
+easyMode = False
 
 #add non default complex checks here
 def executeChecker(checker, cmd, input, correctAnswers):
@@ -70,7 +71,7 @@ def processAndTrimAnswer(answer):
     return answer.strip().replace(" \n", "\n") if answer else None
 
 
-def cleanMainFromFileToCheck():
+def cleanMainFromFileToCheck(fileToCheck):
     isMainFound = False
     sourceFileWithoutMain = ""
     for line in open(fileToCheck, "r", encoding="utf-8").readlines():
@@ -87,13 +88,13 @@ def cleanMainFromFileToCheck():
     return isMainFound
 
 
-def addExecStdIntoTheEndOfFile():
+def addExecStdIntoTheEndOfFile(fileToCheck):
     text_file = open(fileToCheck, "a+", encoding="utf-8")
     text_file.write("\n\nfrom sys import stdin\n\nif __name__ == \"__main__\": exec(stdin.read())")
     text_file.close()
 
 
-def addCustomMain(funcToCall):
+def addCustomMain(fileToCheck, funcToCall):
     text_file = open(fileToCheck, "a+", encoding="utf-8")
     text_file.write(f"\n\nif __name__ == \"__main__\": {funcToCall}()")
     text_file.close()
@@ -113,7 +114,7 @@ def prettyPrintRetArray(retArray: List[TestReport]):
             print(reportLine[1])
 
 
-def checkConfigurationAndRestrictions(testConfiguration):
+def checkConfigurationAndRestrictions(fileToCheck, testConfiguration):
     if "functional" in testConfiguration:
         sourceFileWithoutHeader = ""
         for line in open(fileToCheck, "r", encoding="utf-8").readlines():
@@ -172,18 +173,14 @@ def getCorrectAnswers(dirWithTests, fileWithTests):
     return correctAnswers
 
 
+def main():
 ################
 # Manual Config Section
-easyMode = False  # в этом режиме показываются входные данные для упавших тестов.
-maxExecutionTimeDelay = 2  # max timeout for a task
-
-
 ################
-
-
-def main():
-    fileToCheck = "xmlsort.py"
-    dirToCheck = "processAndSortXml"
+    maxExecutionTimeDelay = 2  # max timeout for a task
+    easyMode = False # в этом режиме показываются входные данные для упавших тестов.
+    fileToCheck = "nosov.py"
+    dirToCheck = "squaresOnly"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
@@ -194,12 +191,13 @@ def main():
         dirToCheck = sys.argv[2]
         if len(sys.argv) > 3:
             easyMode = True if sys.argv[3] else easyMode
+            #easyMode = False
 
     dirWithTests = ".\\tests\\" + dirToCheck + "\\"
     testConfiguration = readConfing(dirWithTests + "config.conf")
 
     # для функционального программирования еще ограничение: одна инструкция языка.
-    checkConfigurationAndRestrictions(testConfiguration)
+    checkConfigurationAndRestrictions(fileToCheck, testConfiguration)
 
     # для всех файлов .t с входными данными
     testFiles = sorted(filter(lambda x: x.endswith(".t"), os.listdir(dirWithTests)), key=lambda x: int(x[4:-2]))
@@ -213,12 +211,12 @@ def main():
 
             copy2(dirWithTests + file, inputDataFile)
             if needToCompileTestData:
-                cleanMainFromFileToCheck()
-                addExecStdIntoTheEndOfFile()
+                cleanMainFromFileToCheck(fileToCheck)
+                addExecStdIntoTheEndOfFile(fileToCheck)
 
             if needToAddMain and funcToCallInMain:
-                cleanMainFromFileToCheck()
-                addCustomMain(funcToCallInMain)
+                cleanMainFromFileToCheck(fileToCheck)
+                addCustomMain(fileToCheck, funcToCallInMain)
 
             # надо проверить .a файлы с ответами
             correctAnswers = getCorrectAnswers(dirWithTests, file)
