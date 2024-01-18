@@ -6,11 +6,11 @@
     },
     {
       "name": "Shangri-La Hotel",
-      "position": [25.2084, -55.2719]
+      "position": [25.2084, 0]
     },
     {
       "name": "A Nice Island",
-      "position": [-25.2285, 55.3273]
+      "position": [-25.2285, -55.3273]
     }
   ]
 }

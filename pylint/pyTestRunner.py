@@ -1,4 +1,4 @@
-# код проверяльщика задач, версия 2023.31
+# код проверяльщика задач, версия 2024.32
 import json
 import os
 import subprocess
@@ -15,7 +15,8 @@ import xmlSortChecker
 
 easyMode = False
 
-#add non default complex checks here
+
+# add non default complex checks here
 def executeChecker(checker, cmd, input, correctAnswers):
     if checker == "xmlSortChecker":
         return xmlSortChecker.check(cmd, input, correctAnswers[0])
@@ -41,6 +42,8 @@ def readConfing(pathTocfg):
 
     if dictOfConfigs["func"] == "contains":
         dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
+    elif dictOfConfigs["func"] == "any":
+        dictOfConfigs["func"] = None
     elif "lambda" in dictOfConfigs["func"]:
         lambdaStr = dictOfConfigs["func"]
         dictOfConfigs["func"] = lambda x, y: eval(lambdaStr)(x, y)
@@ -55,6 +58,9 @@ def checkCrashExists(userAnswer):
 def cutPrivateData(userAnswer):
     result = list()
     for line in userAnswer.split("\n"):
+        if r'if __name__ == "__main__": exec(stdin.read())' in line:
+            continue
+
         tempArray = line.split("\"", 2)
         if len(tempArray) > 1:
             tempArray[1] = "\"" + tempArray[1][tempArray[1].rfind("\\") + 1:] + "\""
@@ -139,11 +145,14 @@ def checkConfigurationAndRestrictions(fileToCheck, testConfiguration):
         mustValues = set(map(lambda x: x.strip(), str(testConfiguration["must"]).split(',')))
         foundValues = set()
         sourceCode = open(fileToCheck, "r", encoding="utf-8").readlines()
-        cleanSourceCode = map(lambda line:
-                              line[:len(line) + 1 + line.find("#")], sourceCode)
+        cleanSourceCode = "".join(map(
+            lambda codeLine:
+            (" " + codeLine) if ("#" not in codeLine) else codeLine.split("#")[0], sourceCode))
+
         for value in mustValues:
             if value in cleanSourceCode:
                 foundValues.add(value)
+
         if len(foundValues) != len(mustValues):
             print(Locale.DoesntHaveMandatory)
             print(Locale.Failed)
@@ -174,24 +183,23 @@ def getCorrectAnswers(dirWithTests, fileWithTests):
 
 
 def main():
-################
-# Manual Config Section
-################
+    ################
+    # Manual Config Section
+    ################
     maxExecutionTimeDelay = 2  # max timeout for a task
-    easyMode = False # в этом режиме показываются входные данные для упавших тестов.
-    fileToCheck = "nosov.py"
-    dirToCheck = "squaresOnly"
+    easyMode = False  # в этом режиме показываются входные данные для упавших тестов.
+    fileToCheck = "_poisk.py"
+    dirToCheck = "regGameSettings"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
     extraDataForEasyMode = ""
-
     if len(sys.argv) > 2:
         fileToCheck = sys.argv[1]
         dirToCheck = sys.argv[2]
         if len(sys.argv) > 3:
             easyMode = True if sys.argv[3] else easyMode
-            #easyMode = False
+            # easyMode = False
 
     dirWithTests = ".\\tests\\" + dirToCheck + "\\"
     testConfiguration = readConfing(dirWithTests + "config.conf")
@@ -228,6 +236,11 @@ def main():
                 else:
                     print(Locale.Failed)
 
+                return
+
+            ### Костылик - когда не надо ничего запускать, все что здано - верно.
+            if not testConfiguration.get("func"):
+                print(Locale.Passed)
                 return
 
             proc = subprocess.Popen(["python", "-u", fileToCheck],

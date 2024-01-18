@@ -215,6 +215,7 @@ public class JavaTaskChecker extends TaskChecker {
         } catch (IOException ex) {
             Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return false;
     }
 }
