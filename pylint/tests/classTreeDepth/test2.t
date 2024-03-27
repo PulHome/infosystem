@@ -8,8 +8,6 @@ if __name__ == "__main__":
 	root.left.left = TreeNode(11)
 	root.right = TreeNode(20)
 	root.right.right = TreeNode(22)
-#	TreeNode.printTree(root)
-#	print()
-	invertTree(root)
-	TreeNode.printTree(root)
+	
+	TreeNode.printTree(invertTree(root))
 	

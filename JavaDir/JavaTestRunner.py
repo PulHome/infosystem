@@ -28,20 +28,18 @@ def readConfing(pathTocfg):
     if os.path.isfile(pathTocfg):
         fileContent = open(pathTocfg, "r", encoding="utf-8").read()
         keypairs = fileContent.split("\t")
-        dictOfConfigs = {k: v for k, v in map(lambda x: x.split("="), keypairs)}
+        dictOfConfigs = {k: v for k, v in map(lambda x: x.split("=", 1), keypairs)}
+    # В словарь записан полный конфиг. В поле func функция проверки
+    if "func" not in dictOfConfigs:
+        dictOfConfigs["func"] = "contains"
 
-    if "func" in dictOfConfigs:
-        if dictOfConfigs["func"] == "contains":
-            # В словарь записан полный конфиг. В поле func функция проверки
-            dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
-        elif dictOfConfigs["func"] == "equals":
-            # В словарь записан полный конфиг. В поле func функция проверки
-            dictOfConfigs["func"] = lambda x, y: x.strip().lower() == y.strip().lower()
-        elif dictOfConfigs["func"] == "contains_reg":
-            # В словарь записан полный конфиг. В поле func функция проверки
-            dictOfConfigs["func"] = lambda x, y: bool(re.search(x.lower(), y.lower()))
-        else:
-            dictOfConfigs["doUseStandAloneTests"] = True
+    if dictOfConfigs["func"] == "contains":
+        dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
+    elif dictOfConfigs["func"] == "any":
+        dictOfConfigs["func"] = None
+    elif "lambda" in dictOfConfigs["func"]:
+        lambdaStr = dictOfConfigs["func"]
+        dictOfConfigs["func"] = lambda x, y: eval(lambdaStr)(x, y)
 
     return dictOfConfigs
 
@@ -136,7 +134,7 @@ def main():
                 if executeChecker(testConfiguration.get("func"), cmd, inputDataFile, correctAnswers):
                     print(Locale.Passed)
                 else:
-                    print("doUseStandAloneTests" + Locale.Failed)
+                    print("Used StandAloneTests from cfg. " + Locale.Failed)
                 return
 
             proc = subprocess.Popen(cmd,

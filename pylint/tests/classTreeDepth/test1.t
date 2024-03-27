@@ -3,6 +3,6 @@ if __name__ == "__main__":
 	root = TreeNode(0)
 	root.left = TreeNode(10)
 	root.right = TreeNode(2)
-	invertTree(root)
+	root = invertTree(root)
 	TreeNode.printTree(root)
 	

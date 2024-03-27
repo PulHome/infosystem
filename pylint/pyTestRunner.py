@@ -1,8 +1,9 @@
-# код проверяльщика задач, версия 2024.32
+# код проверяльщика задач, версия 2024.33
 import json
 import os
 import subprocess
 import sys
+import re
 
 from shutil import copy2
 from typing import List
@@ -12,8 +13,6 @@ from localization import Locale
 from testReport import TestReport
 
 import xmlSortChecker
-
-easyMode = False
 
 
 # add non default complex checks here
@@ -216,6 +215,7 @@ def main():
             needToAddMain = testConfiguration.get("needToAddMain", None)
             funcToCallInMain = testConfiguration.get("funcToCallInMain", None)
             inputDataFile = testConfiguration.get("input", "input.txt")
+            maxExecutionTimeDelay = float(testConfiguration.get("timeout", maxExecutionTimeDelay))
 
             copy2(dirWithTests + file, inputDataFile)
             if needToCompileTestData:
@@ -296,7 +296,12 @@ def main():
             isAnswerCorrect = False
             if "answer_code" in testConfiguration:
                 if testConfiguration["answer_code"] == "mod23":
-                    clearAnswer = int(userAnswer)
+                    value = re.search(r"\d+", userAnswer)
+                    if value is None:
+                        print("Your answer was not found!")
+                        print(Locale.Failed)
+                        return
+                    clearAnswer = int(value.group(0))
                     isAnswerCorrect = (clearAnswer % 23 == 0)
             elif userAnswer is not None and correctAnswers[0] is not None:
                 for aCorrectAnswer in correctAnswers:
