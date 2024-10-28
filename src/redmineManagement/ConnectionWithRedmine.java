@@ -75,7 +75,7 @@ public class ConnectionWithRedmine {
     private String professorName = "";
     private String assigneeName = "";
 
-    private RedmineManager mgr;
+    private final RedmineManager mgr;
 
     private IssueManager issueManager;
     private AttachmentManager attachmentManager;

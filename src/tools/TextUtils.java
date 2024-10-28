@@ -62,11 +62,14 @@ public class TextUtils {
     public static String generateErrorMsg(ConfiguredTask task, String lastLineInReport) {
         String msg = "\n PEP8 mismatch found. Some corrections are required!";
         String error = "";
-        if (task.getLintReportMode().getModeNumber() != LintReportMode.NIGHTMARE_MODE)
-            error = lastLineInReport + msg;
-        else {
+
+        if (task.getLintReportMode() != null &&
+                task.getLintReportMode().getModeNumber() == LintReportMode.NIGHTMARE_MODE)
             error = msg;
+        else {
+            error = lastLineInReport + msg;
         }
+
         return error;
     }
 

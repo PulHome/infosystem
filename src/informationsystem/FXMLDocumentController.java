@@ -329,13 +329,15 @@ public class FXMLDocumentController implements Initializable {
             }
         }
 
-        String selectedProject = comboxProject.getValue().toString();
-        if (!TextUtils.isNullOrEmpty(selectedProject)) {
-            props.projectKey = projects.stream().filter(pr ->
-                            pr.getProjectName().equals(selectedProject))
-                    .findFirst()
-                    .get()
-                    .getId();
+        if (comboxProject.getValue() != null) {
+            String selectedProject = comboxProject.getValue().toString();
+            if (!TextUtils.isNullOrEmpty(selectedProject)) {
+                props.projectKey = projects.stream().filter(pr ->
+                                pr.getProjectName().equals(selectedProject))
+                        .findFirst()
+                        .get()
+                        .getId();
+            }
         }
 
         props.url = fillUrlProps(textFieldURL);

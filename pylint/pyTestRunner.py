@@ -133,8 +133,8 @@ def checkConfigurationAndRestrictions(fileToCheck, testConfiguration):
     if "deny" in testConfiguration:
         denyValues = list(map(lambda x: x.strip(), str(testConfiguration["deny"]).split(',')))
         sourceCode = open(fileToCheck, "r", encoding="utf-8").readlines()
-        cleanSourceCode = map(lambda line:
-                              line[:len(line) + 1 + line.find("#")], sourceCode)
+        cleanSourceCode = " ".join(map(lambda line:
+                              line[:len(line) + 1 + line.find("#")].strip(), sourceCode))
         for value in denyValues:
             if value in cleanSourceCode:
                 print(f"{Locale.HaveRestricted}\n{Locale.Failed}")
@@ -187,8 +187,8 @@ def main():
     ################
     maxExecutionTimeDelay = 2  # max timeout for a task
     easyMode = False  # в этом режиме показываются входные данные для упавших тестов.
-    fileToCheck = "_poisk.py"
-    dirToCheck = "regGameSettings"
+    fileToCheck = "invert.py"
+    dirToCheck = "kr1_flipBits"
     # dirToCheck = "regFindReplaceRepeated"
     retArray = list()
 
