@@ -122,10 +122,10 @@ public class FXMLDocumentController implements Initializable {
     private Button fileChoose;
 
     @FXML
-    private ListView students;
+    private ListView<CellWithCheckBox> students;
 
     @FXML
-    private ListView tasks;
+    private ListView<CellWithCheckBox> tasks;
 
     @FXML
     private CheckBox checkboxNeedLint;
@@ -358,8 +358,9 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void updateProjectIterationsAsync(RedmineConnectionProperties aPproperties) {
-        new Thread(() -> getAllIterations(aPproperties)).start();
+    private void updateProjectIterationsAsync(RedmineConnectionProperties aProperties) {
+        //getAllIterations(aProperties);
+        new Thread(() -> getAllIterations(aProperties)).start();
     }
 
     private String fillUrlProps(TextField textFieldURL) {
@@ -614,11 +615,12 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void getAllIterations(RedmineConnectionProperties properties) {
-        connectionToRedmine = new ConnectionWithRedmine(properties.apiAccessKey, properties.projectKey, properties.url);
+        connectionToRedmine = new ConnectionWithRedmine(properties.apiAccessKey,
+                properties.projectKey, properties.url);
 
-        ObservableList<String> targetVersionLost = FXCollections.observableArrayList(
+        ObservableList<String> targetVersionList = FXCollections.observableArrayList(
                 connectionToRedmine.getVersions(props.projectKey));
-        Platform.runLater(() -> comboxVersion.setItems(targetVersionLost));
+        Platform.runLater(() -> comboxVersion.setItems(targetVersionList));
     }
 
     @FXML

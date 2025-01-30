@@ -581,7 +581,7 @@ public class ConnectionWithRedmine {
         } catch (RedmineException e) {
             logger.info(e.getMessage());
         }
-        return allVersions.stream().map(v -> v.getName()).collect(Collectors.toList());
+        return allVersions.stream().map(Version::getName).collect(Collectors.toList());
     }
 
     public Collection<String> getVersions() {
