@@ -76,7 +76,7 @@
                      <GridPane.margin>
                         <Insets right="12.0" />
                      </GridPane.margin></ComboBox>
-                        <TextField fx:id="textFieldURL" maxWidth="-Infinity" prefHeight="31.0" prefWidth="215.0" promptText="http://www.hostedredmine.com" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                        <TextField fx:id="textFieldURL" maxWidth="-Infinity" prefHeight="31.0" prefWidth="215.0" promptText="https://www.hostedredmine.com" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                      <GridPane.margin>
                         <Insets right="12.0" />
                      </GridPane.margin></TextField>

@@ -438,7 +438,7 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void copyAndAssignIssues(ActionEvent event) {
-        Pattern pattern = Pattern.compile("\\d{6,7}", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\d+", Pattern.CASE_INSENSITIVE);
 
         tasks.getItems().stream().forEach(item -> ((CellWithCheckBox) item).setCompleted(true));
         students.getItems().stream().forEach(item -> ((CellWithCheckBox) item).setCompleted(true));

@@ -87,9 +87,9 @@ public class ConnectionWithRedmine {
     private List<Membership> projectsUsers;
     private List<Version> versions;
 
-    public ConnectionWithRedmine(String apikey, String projectkey, String url) {
+    public ConnectionWithRedmine(String apikey, String projectKey, String url) {
         this.apiAccessKey = apikey;
-        this.projectKey = projectkey;
+        this.projectKey = projectKey;
         this.url = url;
         this.mgr = RedmineManagerFactory.createWithApiKey(url, apiAccessKey);
         this.issueManager = mgr.getIssueManager();
@@ -101,7 +101,7 @@ public class ConnectionWithRedmine {
             mgr.getTransport().setObjectsPerPage(100);
             mgr.setObjectsPerPage(100);
             projectsUsers = mgr.getProjectManager().getProjectMembers(this.projectKey);
-            versions = projectManager.getVersions(projectManager.getProjectByKey(projectKey).getId());
+            versions = projectManager.getVersions(projectManager.getProjectByKey(this.projectKey).getId());
         } catch (RedmineException ex) {
             logger.info(ex.toString());
         }
@@ -237,9 +237,10 @@ public class ConnectionWithRedmine {
     }
 
     public Optional<Attachment> getLatestCheckableAttach(List<Attachment> issueAttachments) {
-        if (issueAttachments == null && issueAttachments.size() == 0) {
+        if (issueAttachments == null || issueAttachments.isEmpty()) {
             return Optional.empty();
         }
+
         long idMax = 0;
         int maxIndex = 0;
         for (int i = 0; i < issueAttachments.size(); i++) {
@@ -465,17 +466,19 @@ public class ConnectionWithRedmine {
     public void downloadAttachments(String url, String apikey, String fileName) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url(url)
+                .url(url.replace("http:", "https:"))
                 .get()
                 .addHeader("x-redmine-api-key", apikey)
                 .addHeader("cache-control", "no-cache") //не обязательно
                 .build();
 
-        Response response = client.newCall(request).execute();
-
-        try (InputStream in = response.body().byteStream()) {
-            Path to = Paths.get(fileName); //convert from String to Path
-            Files.copy(in, to, StandardCopyOption.REPLACE_EXISTING);
+        try (Response response = client.newCall(request).execute()) {
+            if (response.body() != null) {
+                try (InputStream in = response.body().byteStream()) {
+                    Path to = Paths.get(fileName); //convert from String to Path
+                    Files.copy(in, to, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
         }
     }
 
