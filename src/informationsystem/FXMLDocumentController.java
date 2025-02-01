@@ -14,6 +14,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -186,6 +187,12 @@ public class FXMLDocumentController implements Initializable {
     private TasksKeeper tasksKeeper;
 
     public void initialize(URL url, ResourceBundle bn) {
+        settingsReader.readUrls(projectKeyXml);
+
+        //set redmine url to connection settings and config file
+        props.url = openServerSelectionDialogModal();
+        settingsReader.setCurrentRedmineUrl(props.url);
+
         settingsReader.readConfigXML(projectKeyXml);
 
         settingsReader.getOwners().forEach((ProjectOwner p) -> {
@@ -237,6 +244,10 @@ public class FXMLDocumentController implements Initializable {
         //read tasks
         tasksKeeper = TasksKeeper.update(tasksReader);
         tasksKeeper.setXmlReader(tasksReader);
+
+        //set redmineURL
+        textFieldURL.setText(props.url);
+        textFieldURL.setDisable(true);
     }
 
     private LoggerWindowController showLoggerStage(PvkLogger logger) {
@@ -332,15 +343,13 @@ public class FXMLDocumentController implements Initializable {
         if (comboxProject.getValue() != null) {
             String selectedProject = comboxProject.getValue().toString();
             if (!TextUtils.isNullOrEmpty(selectedProject)) {
-                props.projectKey = projects.stream().filter(pr ->
+                Optional<Project> foundProject = projects.stream().filter(pr ->
                                 pr.getProjectName().equals(selectedProject))
-                        .findFirst()
-                        .get()
-                        .getId();
+                        .findFirst();
+                foundProject.ifPresent(project -> props.projectKey = project
+                        .getId());
             }
         }
-
-        props.url = fillUrlProps(textFieldURL);
 
         String selectedIteration = settingsReader.getSelectedVersion();
         if (selectedIteration != null) {
@@ -361,18 +370,6 @@ public class FXMLDocumentController implements Initializable {
     private void updateProjectIterationsAsync(RedmineConnectionProperties aProperties) {
         //getAllIterations(aProperties);
         new Thread(() -> getAllIterations(aProperties)).start();
-    }
-
-    private String fillUrlProps(TextField textFieldURL) {
-        String url = "";
-
-        if (textFieldURL == null || textFieldURL.getText() == null || textFieldURL.getText().isEmpty()) {
-            url = "https://www.hostedredmine.com";
-        } else {
-            url = textFieldURL.getText();
-        }
-
-        return url;
     }
 
     @FXML
@@ -601,7 +598,6 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void handleProjectChoice() {
-        props.url = fillUrlProps(textFieldURL);
         for (Project p : projects) {
             if (comboxProject.getValue() != null && p.getProjectName().equals(comboxProject.getValue().toString())) {
                 props.projectKey = p.getId();
@@ -1086,11 +1082,25 @@ public class FXMLDocumentController implements Initializable {
         }
 
         if (!comboxVersion.getValue().toString().isEmpty()) {
-            String selected = (String) comboxVersion.getValue();
-            props.iterationName = selected;
+            props.iterationName = (String) comboxVersion.getValue();
         }
     }
 
+    private String openServerSelectionDialogModal() {
+        //List<String> choices = Arrays.asList("hostedredmine.com", "319redmine.ru");
+        List<String> choices = settingsReader.getUrls();
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+        dialog.setTitle("PVK Robot");
+        dialog.setHeaderText("Выберите сервер:");
+        dialog.setContentText("Урл:");
 
-    private static PvkLogger logger = PvkLogger.getLogger(FXMLDocumentController.class.getSimpleName(), false);
+        Optional<String> result = dialog.showAndWait();
+
+        AtomicReference<String> selectedUrl = new AtomicReference<>("");
+        result.ifPresent(selectedUrl::set);
+
+        return selectedUrl.get();
+    }
+
+    private static final PvkLogger logger = PvkLogger.getLogger(FXMLDocumentController.class.getSimpleName(), false);
 }

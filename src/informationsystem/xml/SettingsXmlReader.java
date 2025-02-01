@@ -13,6 +13,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SettingsXmlReader extends XmlReader {
@@ -23,6 +24,9 @@ public class SettingsXmlReader extends XmlReader {
     private ArrayList<String> apiKeysList = new ArrayList<String>();
     private ArrayList<String> projectNameList = new ArrayList<String>();
     private ArrayList<ProjectOwner> owners = new ArrayList<ProjectOwner>();
+    private List<String> urls = new ArrayList<>();
+
+    private String currentRedmineUrl;
     private boolean isEasyMode;
     private boolean checkAll;
 
@@ -31,6 +35,7 @@ public class SettingsXmlReader extends XmlReader {
     private Project selectedProject;
     private String selectedVersion = "";
     private LintReportMode selectedLintMode;
+
 
     public SettingsXmlReader(String xmlPath) {
         super(xmlPath);
@@ -164,13 +169,13 @@ public class SettingsXmlReader extends XmlReader {
             Document configDoc = getDocument(filePath);
 
             //xpath for getting names
-            XPathExpression exprOwners = xpath.compile(".//supervisor/@name");
+            XPathExpression exprOwners = xpath.compile(".//redmine[@url='" + currentRedmineUrl + "']//supervisor/@name");
             NodeList nl = (NodeList) exprOwners.evaluate(configDoc, XPathConstants.NODESET);
             for (int i = 0; i < nl.getLength(); i++) {
                 String owner = nl.item(i).getTextContent();
                 getOwners().add(new ProjectOwner(owner));
                 //get all project by supervisor
-                XPathExpression exprProjects = xpath.compile(".//supervisor[@name='" + owner + "']/project");
+                XPathExpression exprProjects = xpath.compile(".//redmine[@url='" + currentRedmineUrl + "']//supervisor[@name='" + owner + "']/project");
                 NodeList hisProjects = (NodeList) exprProjects.evaluate(configDoc, XPathConstants.NODESET);
                 for (int j = 0; j < hisProjects.getLength(); j++) {
                     Element e = (Element) hisProjects.item(j);
@@ -180,7 +185,7 @@ public class SettingsXmlReader extends XmlReader {
                 }
 
                 //add apikey
-                XPathExpression exprApiKey = xpath.compile(".//supervisor[@name='" + owner + "']/apiKey");
+                XPathExpression exprApiKey = xpath.compile(".//redmine[@url='" + currentRedmineUrl + "']//supervisor[@name='" + owner + "']/apiKey");
                 NodeList hisApikey = (NodeList) exprApiKey.evaluate(configDoc, XPathConstants.NODESET);
                 getOwners().get(i).setApiKey(hisApikey.item(0).getTextContent());
             }
@@ -207,7 +212,7 @@ public class SettingsXmlReader extends XmlReader {
             XPathExpression selectedProjectIdXPath = xpath.compile(".//SelectedProjectId");
             Node selectedProjectNode = (Node) selectedProjectXPath.evaluate(configDoc, XPathConstants.NODE);
             Node selectedProjectIdNode = (Node) selectedProjectIdXPath.evaluate(configDoc, XPathConstants.NODE);
-            if (selectedProjectNode != null && selectedProjectNode != null) {
+            if (selectedProjectNode != null) {
                 selectedProject = new Project(selectedProjectNode.getTextContent(), selectedProjectIdNode.getTextContent());
             }
 
@@ -251,4 +256,30 @@ public class SettingsXmlReader extends XmlReader {
     }
 
 
+    public List<String> getUrls() {
+        return urls;
+    }
+
+    public String getCurrentRedmineUrl() {
+        return currentRedmineUrl;
+    }
+
+    public void setCurrentRedmineUrl(String currentRedmineUrl) {
+        this.currentRedmineUrl = currentRedmineUrl;
+    }
+
+    public void readUrls(String projectKeyXml) {
+        try {
+            Document configDoc = getDocument(filePath);
+
+            //xpath for getting urls
+            XPathExpression exprORedmineUrls = xpath.compile(".//redmine/@url");
+            NodeList nlUrls = (NodeList) exprORedmineUrls.evaluate(configDoc, XPathConstants.NODESET);
+            for (int i = 0; i < nlUrls.getLength(); i++) {
+                urls.add(nlUrls.item(i).getTextContent());
+            }
+        } catch (XPathExpressionException ex) {
+            logger.severe(ex.getMessage());
+        }
+    }
 }
