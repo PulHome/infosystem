@@ -187,6 +187,9 @@ public class FXMLDocumentController implements Initializable {
     private TasksKeeper tasksKeeper;
 
     public void initialize(URL url, ResourceBundle bn) {
+        LoggerWindowController loggerWindow = showLoggerStage(logger);
+        logger.setLoggerControllerWindow(loggerWindow);
+
         settingsReader.readUrls(projectKeyXml);
 
         //set redmine url to connection settings and config file
@@ -237,8 +240,7 @@ public class FXMLDocumentController implements Initializable {
 
         initializeSelectedProject();
         setSelectedLintMode();
-        LoggerWindowController loggerWindow = showLoggerStage(logger);
-        logger.setLoggerControllerWindow(loggerWindow);
+
         journalReader = new RedmineAlternativeReader(props.url, props.apiAccessKey, props.projectKey);
 
         //read tasks
@@ -398,7 +400,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void loadLists(ActionEvent event) {
+    private void loadListsForTasksGiveaway(ActionEvent event) {
         ArrayList<CellWithCheckBox> users = new ArrayList<>();
         ArrayList<CellWithCheckBox> tasks = new ArrayList<>();
         for (String user : connectionToRedmine.getProjectUsers().stream().sorted().collect(Collectors.toList())) {
@@ -557,7 +559,7 @@ public class FXMLDocumentController implements Initializable {
 
             //connectionToRedmine.setVersionForCheck(comboxVersion.getValue().toString(), issue);
             String student = getStudentName(journalReader.getJournals(issue.getId().toString()), connectionToRedmine.getProfessorName());
-            logger.info("Student is " + student);
+            logger.info("Student is '" + student + "'");
             ConfiguredTask confTask = new ConfiguredTaskBuilder().setIssue(issue).setTaskCompleter(student).setIsNeededForceCheck(needForced).setIsLintRequired(connectionToRedmine.getLint()).setRequiredPythonRating(pyRating).setJavaErrors(javaErrorLimit).setEasyMode(easyMode).setLintReportMode((LintReportMode) lintErrorsNotificationsType.getValue()).createConfiguredTask();
             connectionToRedmine.checkIssueAttachments(confTask);
 
@@ -593,7 +595,8 @@ public class FXMLDocumentController implements Initializable {
                 break;
             }
         }
-        return retVal;
+
+        return retVal.trim();
     }
 
     @FXML

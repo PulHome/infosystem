@@ -134,7 +134,7 @@ public class ConnectionWithRedmine {
     public Issue setIssueAssigneeNameForIssue(Issue issue, String userName) {
         int id = 0;
         for (Membership user : projectsUsers) {
-            if (user.getUserName().equalsIgnoreCase(userName)) {
+            if (user.getUserName().trim().equalsIgnoreCase(userName.trim())) {
                 id = user.getUserId();
                 break;
             }
@@ -439,7 +439,7 @@ public class ConnectionWithRedmine {
         boolean isPLintSuccessful = false;
 
         if (task.getRequiredPythonRating() > studentPythonRating) {
-            String studentsName = getStudentsName(task.getIssue().getId(), this.professorName);
+            String studentsName = getStudentsName(task.getIssue().getId(), this.professorName).trim();
             if (studentsName.isBlank()) {
                 studentsName = professorName;
             }
@@ -544,7 +544,7 @@ public class ConnectionWithRedmine {
         final Map<String, String> params = new HashMap<>();
 
         params.put("project_id", projectKey);
-        if (iterationName != "") {
+        if (!Objects.equals(iterationName, "")) {
             params.put("fixed_version_id", getIterationIdByName(iterationName));
         }
         params.put("limit", "100");
