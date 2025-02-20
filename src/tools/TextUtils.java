@@ -108,7 +108,7 @@ public class TextUtils {
             Matcher m = pattern.matcher(lastlineInFile);
             m.find();
             String numberOfErrors = m.group();
-            if (numberOfErrors != null && !numberOfErrors.equals("")) {
+            if (numberOfErrors != null && !numberOfErrors.isEmpty()) {
                 return Integer.parseInt(numberOfErrors);
             }
         } catch (IllegalStateException ex) {

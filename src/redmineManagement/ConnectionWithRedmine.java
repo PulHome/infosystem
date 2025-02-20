@@ -32,16 +32,14 @@ import data.ConfiguredTask;
 import data.LintReportMode;
 import informationsystem.*;
 import informationsystem.tasksManager.TaskInfo;
-import lintsForLangs.MyCheckStyle;
-import lintsForLangs.MyCppLint;
-import lintsForLangs.MyPylint;
-import lintsForLangs.PhrasesGenerator;
+import lintsForLangs.*;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.entity.ContentType;
 import taskCheckers.CppTaskChecker;
+import taskCheckers.CsTaskChecker;
 import taskCheckers.JavaTaskChecker;
 import taskCheckers.PyTaskChecker;
 import tools.PvkLogger;
@@ -144,7 +142,7 @@ public class ConnectionWithRedmine {
             issue.setAssigneeId(id);
             issue.setAssigneeName(userName);
         } else {
-            logger.warning("Can't find user " + userName);
+            logger.warning("Can't find user '" + userName + "'");
         }
 
         return issue;
@@ -232,6 +230,10 @@ public class ConnectionWithRedmine {
                 if (attachFileName.endsWith(".cpp")) {
                     processCppFile(task, fileToManage);
                 }
+
+                if (attachFileName.endsWith(".cs")) {
+                    processCsFile(task, fileToManage);
+                }
             }
         }
     }
@@ -293,6 +295,49 @@ public class ConnectionWithRedmine {
             String testFolder = cppTaskChecker.getNameForKnownTest();
             if (!testFolder.isBlank()) {
                 processResult = doCppTaskCheck(cppTaskChecker, issue);
+            }
+        } else {
+            String student = task.getTaskCompleter();
+            this.setIssueAssigneeNameForIssue(issue, student);
+        }
+
+        processResult(task, processResult);
+    }
+    private void processCsFile(ConfiguredTask task, String fileToManage) {
+        int processResult = -1;
+        boolean csLintResult = true;
+        Issue issue = task.getIssue();
+
+        if (task.isLintRequired()) {
+            csLintResult = doCppLint(fileToManage, task);
+        }
+
+        //if csLint was OK or not required
+        if (csLintResult) {
+            CppTaskChecker cppTaskChecker = new CppTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
+            String testFolder = cppTaskChecker.getNameForKnownTest();
+            if (!testFolder.isBlank()) {
+                processResult = doCppTaskCheck(cppTaskChecker, issue);
+            }
+        } else {
+            String student = task.getTaskCompleter();
+            this.setIssueAssigneeNameForIssue(issue, student);
+        }
+
+        processResult(task, processResult);
+    }
+    private void processCsFile(ConfiguredTask task, Issue issue, String fileToManage) {
+        int processResult = -1;
+        boolean csLintResult = true;
+        if (task.isLintRequired()) {
+            csLintResult = doCsLint(task, fileToManage);
+        }
+        //if lint was OK or not required
+        if (csLintResult) {
+            CsTaskChecker csChecker = new CsTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
+            String testFolder = csChecker.getNameForKnownTest();
+            if (!testFolder.isBlank()) {
+                processResult = doCsTaskCheck(csChecker, issue);
             }
         } else {
             String student = task.getTaskCompleter();
@@ -378,6 +423,41 @@ public class ConnectionWithRedmine {
         }
     }
 
+    private void doCsLint(Attachment attach, ConfiguredTask task) {
+        String fileToManage = myFilesDir + makeUsableFileName(
+                attach.getFileName(),
+                attach.getAuthor().getFullName(),
+                task.getIssue().getSubject());
+        doCsLint(task, fileToManage);
+    }
+
+    private boolean doCsLint(ConfiguredTask task, String fullFileName) {
+        new MyCSharpLint().startCslint(fullFileName);
+        String[] allLines = TextUtils.readReportFile(fullFileName + "_errorReport.txt");
+        String lastLine = allLines[allLines.length - 1];
+        String notesForIssue = "";
+
+        int studentCsErrorAmount = TextUtils.cppErrorAmountDetectionInFile(lastLine);
+        if (studentCsErrorAmount > task.getMaxJavaLintErrors()) {
+            if (task.getLintReportMode().getModeNumber() != LintReportMode.NIGHTMARE_MODE) {
+                if (task.getLintReportMode().getModeNumber() == LintReportMode.DEFAULT_MODE) {
+                    notesForIssue = TextUtils.getPrettyErrorsCpp(allLines);
+                    this.uploadAttachment(task.getIssue(), fullFileName + "_errorReport.txt");
+                } else {
+                    notesForIssue = lastLine;
+                }
+            }
+            task.getIssue().setNotes(notesForIssue + "\nSome corrections are required.");
+            this.updateIssue(task.getIssue());
+
+            return false;
+        } else {
+            task.getIssue().setNotes(generateSuccessMsg());
+            this.updateIssue(task.getIssue());
+            return true;
+        }
+    }
+
     private void doJavaLint(String fullFileName) {
         doJavaLint(null, fullFileName);
     }
@@ -391,17 +471,15 @@ public class ConnectionWithRedmine {
         int studentJavaErrorAmount = TextUtils.javaErrorAmountDetectionInFile(lastLine);
 
         if (studentJavaErrorAmount > task.getMaxJavaLintErrors()) {
-            if (task != null) {
-                if (task.getLintReportMode().getModeNumber() != LintReportMode.NIGHTMARE_MODE) {
-                    if (task.getLintReportMode().getModeNumber() == LintReportMode.DEFAULT_MODE) {
-                        notesForIssue = TextUtils.getPrettyErrorsJava(allLines);
-                        this.uploadAttachment(task.getIssue(), fullFileName + "_errorReport.txt");
-                    } else {
-                        notesForIssue = lastLine;
-                    }
+            if (task.getLintReportMode().getModeNumber() != LintReportMode.NIGHTMARE_MODE) {
+                if (task.getLintReportMode().getModeNumber() == LintReportMode.DEFAULT_MODE) {
+                    notesForIssue = TextUtils.getPrettyErrorsJava(allLines);
+                    this.uploadAttachment(task.getIssue(), fullFileName + "_errorReport.txt");
+                } else {
+                    notesForIssue = lastLine;
                 }
-                task.getIssue().setNotes(notesForIssue + "\nSome corrections are required.");
             }
+            task.getIssue().setNotes(notesForIssue + "\nSome corrections are required.");
 
             lintResult = false;
         } else {
@@ -821,6 +899,24 @@ public class ConnectionWithRedmine {
         int success = 0;
         String[] splittedResult = result.split("\n");
         if (splittedResult[splittedResult.length - 1].toLowerCase().equals("passed")) {
+            issue.setNotes("All tests passed");
+            success = 1;
+        } else {
+            issue.setNotes("<pre>" + result + "</pre>");
+        }
+        return success;
+    }
+
+    private int doCsTaskCheck(CsTaskChecker checker, Issue issue) {
+        String result = "";
+        try {
+            result = checker.startCsCheck();
+        } catch (UnsupportedOperationException ex) {
+            return -1;
+        }
+        int success = 0;
+        String[] splittedResult = result.split("\n");
+        if (splittedResult[splittedResult.length - 1].equalsIgnoreCase("passed")) {
             issue.setNotes("All tests passed");
             success = 1;
         } else {
