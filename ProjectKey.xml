@@ -1,25 +1,43 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><settings><supervisors>
-<supervisor name="Sergey Politsyn">
-<project id="fifthth_grade_2020" name="PVK-M-2019_2020"/>
-<project id="pvk-m-2020_2021" name="2020-2021"/>
-<project id="python-quest-2018-2019" name="python-quest-2018-2019"/>
-<apiKey>7bd0ad78c5a96b2434a07fec485eff8a67f7621</apiKey>
-</supervisor>
-<supervisor name="Autotester PVK">
-<project id="pvk-m-2018_2019" name="2018-2019"/>
-<apiKey>57a46a038e0da4bd1c0b8734e8f95cf6d97063b</apiKey>
-</supervisor>
-<supervisor name="Ekaterina Politsyna">
-<project id="python-quest-2018-2019" name="Test Project"/>
-<project id="mai-vti319-18-2019-2020" name="2й курс ТП"/>
-<apiKey>7f566bb8c0027ec71d0db820b139db2f8f3525e</apiKey>
-</supervisor>
-</supervisors>
-<SelectedSupervisor>Ekaterina Politsyna</SelectedSupervisor>
-<isEasyMode>true</isEasyMode>
-<SelectedProjectName>2й курс ТП</SelectedProjectName>
-<SelectedProjectId>mai-319-vti235-2020-2021</SelectedProjectId>
-<checkAllIterations>true</checkAllIterations>
-<SelectedIteration>py_контрольная_работа_2</SelectedIteration>
-<SelectedLintMode>default -  По умолчанию(показывать, где ошибки)</SelectedLintMode>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<settings>
+  <redmine url="https://www.hostedredmine.com">
+    <supervisors>
+      <supervisor name="Sergey Politsyn">
+        <project id="python-first-nis-2024" name="HSE Python24"/>
+        <project id="python-first-nic-2023" name="HSE Python"/>
+        <project id="pvk-m-2022_2023" name="pvk-m-2022_2023"/>
+        <project id="pvk-m-2021_2022" name="pvk-m-2021_2022"/>
+        <project id="infosec2024" name="IZ стажировака 24"/>
+        <project id="fifthth_grade_2020" name="PVK-M-2019_2020"/>
+        <project id="pvk-m-2020_2021" name="2020-2021"/>
+        <project id="python-quest-2018-2019" name="python_test_quest"/>
+        <project id="pvk_319_programming_ap_21" name="Фадеев 2021"/>
+        <apiKey>key</apiKey>
+      </supervisor>
+      <supervisor name="Ekaterina Politsyna">
+        <project id="python_java_quest" name="Test Project"/>
+        <project id="m3o-235b-22-razrabotka-po" name="2й разработка ПО"/>
+        <project id="m3o-121m-21-oppps" name="6й курс 22"/>
+        <project id="infosec2024" name="infosec2024"/>
+        <apiKey>key</apiKey>
+      </supervisor>
+    </supervisors>
+  </redmine>
+  <redmine url="https://319redmine.ru">
+    <supervisors>
+      <supervisor name="Sergey Politsyn">
+        <project id="python-quest-2018-2019" name="First test project"/>
+        <apiKey>key</apiKey>
+      </supervisor>
+    </supervisors>
+  </redmine>
+  <UploadId>38</UploadId>
+  <SelectedSupervisor>Sergey Politsyn</SelectedSupervisor>
+  <isEasyMode>true</isEasyMode>
+  <SelectedProjectName>First test project</SelectedProjectName>
+  <SelectedProjectId>python-quest-2018-2019</SelectedProjectId>
+  <SelectedLintMode>default -  По умолчанию(показывать, где ошибки)</SelectedLintMode>
+  <checkAllIterations>true</checkAllIterations>
+  <SelectedIteration>test</SelectedIteration>
+  <CSarpPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\</CSarpPath>
 </settings>
