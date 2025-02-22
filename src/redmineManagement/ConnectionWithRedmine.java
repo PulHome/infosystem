@@ -25,7 +25,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import data.ConfiguredTask;
@@ -55,7 +54,7 @@ public class ConnectionWithRedmine {
     static final int STATUS_ID_INPROGRESS = 2;
     static final int STATUS_ID_RESOLVED = 3;
     static final int STATUS_ID_APPROVED = 4;
-    static final int STATUS_ID_CLOSED = 5;
+    static int STATUS_ID_CLOSED = 5;
 
     static final String myFilesDir = ".\\myFiles\\";
 
@@ -100,6 +99,8 @@ public class ConnectionWithRedmine {
             mgr.setObjectsPerPage(100);
             projectsUsers = mgr.getProjectManager().getProjectMembers(this.projectKey);
             versions = projectManager.getVersions(projectManager.getProjectByKey(this.projectKey).getId());
+            List<IssueStatus> issueStatuses = issueManager.getStatuses();
+            STATUS_ID_CLOSED = issueStatuses.stream().filter(IssueStatus::isClosed).findFirst().get().getId();
         } catch (RedmineException ex) {
             logger.info(ex.toString());
         }
@@ -191,7 +192,7 @@ public class ConnectionWithRedmine {
         String attachFileName = attach.getFileName();
         Issue issue = task.getIssue();
 
-        if (isKnownAttachExtention(attachFileName)) {
+        if (isKnownAttachExtension(attachFileName)) {
             int wasCheckedEarlier = -1;
             //Если не надо перепроверять ранее проверенные, смотрим, не нашлось ли ранее проверенных
             if (!task.isNeededForceCheck()) {
@@ -246,7 +247,7 @@ public class ConnectionWithRedmine {
         long idMax = 0;
         int maxIndex = 0;
         for (int i = 0; i < issueAttachments.size(); i++) {
-            if (isKnownAttachExtention(issueAttachments.get(i).getFileName()) &&
+            if (isKnownAttachExtension(issueAttachments.get(i).getFileName()) &&
                     issueAttachments.get(i).getId() > idMax) {
                 idMax = issueAttachments.get(i).getId();
                 maxIndex = i;
@@ -264,6 +265,7 @@ public class ConnectionWithRedmine {
         if (task.isLintRequired()) {
             javaLintResult = doJavaLint(task, fileToManage);
         }
+
         //if javaLint was OK or not required
         if (javaLintResult) {
             JavaTaskChecker javaChecker = new JavaTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
@@ -289,7 +291,7 @@ public class ConnectionWithRedmine {
             cppLintResult = doCppLint(fileToManage, task);
         }
 
-        //if javaLint was OK or not required
+        //if lint was OK or not required
         if (cppLintResult) {
             CppTaskChecker cppTaskChecker = new CppTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
             String testFolder = cppTaskChecker.getNameForKnownTest();
@@ -303,43 +305,25 @@ public class ConnectionWithRedmine {
 
         processResult(task, processResult);
     }
+
     private void processCsFile(ConfiguredTask task, String fileToManage) {
         int processResult = -1;
         boolean csLintResult = true;
         Issue issue = task.getIssue();
 
         if (task.isLintRequired()) {
-            csLintResult = doCppLint(fileToManage, task);
+            csLintResult = doCsLint(task, fileToManage);
         }
 
         //if csLint was OK or not required
         if (csLintResult) {
-            CppTaskChecker cppTaskChecker = new CppTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
-            String testFolder = cppTaskChecker.getNameForKnownTest();
+            CsTaskChecker csTaskChecker = new CsTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
+            String testFolder = csTaskChecker.getNameForKnownTest();
             if (!testFolder.isBlank()) {
-                processResult = doCppTaskCheck(cppTaskChecker, issue);
+                processResult = doCsTaskCheck(csTaskChecker, issue);
             }
         } else {
-            String student = task.getTaskCompleter();
-            this.setIssueAssigneeNameForIssue(issue, student);
-        }
-
-        processResult(task, processResult);
-    }
-    private void processCsFile(ConfiguredTask task, Issue issue, String fileToManage) {
-        int processResult = -1;
-        boolean csLintResult = true;
-        if (task.isLintRequired()) {
-            csLintResult = doCsLint(task, fileToManage);
-        }
-        //if lint was OK or not required
-        if (csLintResult) {
-            CsTaskChecker csChecker = new CsTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
-            String testFolder = csChecker.getNameForKnownTest();
-            if (!testFolder.isBlank()) {
-                processResult = doCsTaskCheck(csChecker, issue);
-            }
-        } else {
+            logger.warning("Failed on Lint");
             String student = task.getTaskCompleter();
             this.setIssueAssigneeNameForIssue(issue, student);
         }
@@ -351,14 +335,10 @@ public class ConnectionWithRedmine {
         Issue issue = task.getIssue();
         if (processResult != -1) {
             logger.warning(TextUtils.getStringResult(processResult));
-            logger.info(" (after tests - back to Student) - " + task.getTaskCompleter());
+            logger.info("(after tests - back to Student) - " + task.getTaskCompleter());
             this.setIssueAssigneeNameForIssue(issue, task.getTaskCompleter());
-            if (processResult == 1 && this.returnBackIfAllOk) {
+            if (processResult == 1) {
                 issue.setStatusId(STATUS_ID_CLOSED);
-            }
-
-            if (processResult == 1 && !this.returnBackIfAllOk) {
-                issue.setStatusId(STATUS_ID_APPROVED);
             }
         }
 
@@ -374,7 +354,7 @@ public class ConnectionWithRedmine {
         if (pyLintResult) {
             PyTaskChecker pyChecker = new PyTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
             String testFolder = pyChecker.getNameForKnownTest();
-            if (!testFolder.equals("")) {
+            if (!testFolder.isEmpty()) {
                 processResult = doPyTaskCheck(pyChecker, issue);
             }
         }
@@ -382,8 +362,12 @@ public class ConnectionWithRedmine {
         processResult(task, processResult);
     }
 
-    private boolean isKnownAttachExtention(String attachName) {
-        return attachName.endsWith(".py") || attachName.endsWith(".java") || attachName.endsWith(".zip") || attachName.endsWith(".cpp");
+    private boolean isKnownAttachExtension(String attachName) {
+        return attachName.endsWith(".py")
+                || attachName.endsWith(".java")
+                || attachName.endsWith(".zip")
+                || attachName.endsWith(".cs")
+                || attachName.endsWith(".cpp");
     }
 
     private void doCppLint(Attachment attach, ConfiguredTask task) {
@@ -432,12 +416,12 @@ public class ConnectionWithRedmine {
     }
 
     private boolean doCsLint(ConfiguredTask task, String fullFileName) {
-        new MyCSharpLint().startCslint(fullFileName);
+        new MyCSharpLint().startCsLint(fullFileName);
         String[] allLines = TextUtils.readReportFile(fullFileName + "_errorReport.txt");
         String lastLine = allLines[allLines.length - 1];
         String notesForIssue = "";
 
-        int studentCsErrorAmount = TextUtils.cppErrorAmountDetectionInFile(lastLine);
+        int studentCsErrorAmount = TextUtils.csErrorAmountDetectionInFile(lastLine);
         if (studentCsErrorAmount > task.getMaxJavaLintErrors()) {
             if (task.getLintReportMode().getModeNumber() != LintReportMode.NIGHTMARE_MODE) {
                 if (task.getLintReportMode().getModeNumber() == LintReportMode.DEFAULT_MODE) {
@@ -448,7 +432,7 @@ public class ConnectionWithRedmine {
                 }
             }
             task.getIssue().setNotes(notesForIssue + "\nSome corrections are required.");
-            this.updateIssue(task.getIssue());
+            //this.updateIssue(task.getIssue());
 
             return false;
         } else {
@@ -479,6 +463,7 @@ public class ConnectionWithRedmine {
                     notesForIssue = lastLine;
                 }
             }
+
             task.getIssue().setNotes(notesForIssue + "\nSome corrections are required.");
 
             lintResult = false;
@@ -528,7 +513,13 @@ public class ConnectionWithRedmine {
 
             if (task.getLintReportMode().getModeNumber() == LintReportMode.DEFAULT_MODE) {
                 notesForIssue = TextUtils.getPrettyErrorsPython(reportLines);
-                lastLineInReport = String.format("Error(s): %d", notesForIssue.split("\n").length - 2);
+                int errors = notesForIssue.split("\n").length - 2;
+                if (errors > 0) {
+                    lastLineInReport = String.format("Error(s): %s", errors);
+                } else {
+                    lastLineInReport = "\r\nSyntax error(s).\n";
+                }
+
                 this.uploadAttachment(task.getIssue(), attachName);
             }
         } else {

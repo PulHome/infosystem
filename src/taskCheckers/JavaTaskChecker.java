@@ -131,6 +131,9 @@ public class JavaTaskChecker extends TaskChecker {
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             while ((line = r.readLine()) != null) {
+                if (line.contains("C:\\")) {
+                    line = line.substring(line.lastIndexOf('\\'));
+                }
                 sb.append(line).append("\n");
             }
 

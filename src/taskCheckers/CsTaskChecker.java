@@ -29,7 +29,7 @@ public class CsTaskChecker extends TaskChecker {
     public static void main(String[] args) {
         CsTaskChecker checker = new CsTaskChecker("Гражданская оборона(*)", "myFiles/nikitautochkin_grazhdanskayaoborona_civildefense.zip", true);
         checker.startCsCheck();
-}
+    }
 
     public String startCsCheck() {
         return startCsCheck(this.getSubject(), this.getFileToManage());
@@ -40,7 +40,7 @@ public class CsTaskChecker extends TaskChecker {
         FileAndItsTest data = copyFileToTempFolder(fileToManage);
         data.testName = getTestName3(subject);
 
-        if (data.testName.equals("")) {
+        if (data.testName.isEmpty()) {
             throw new UnsupportedOperationException("Not supported");
         }
 
@@ -57,31 +57,23 @@ public class CsTaskChecker extends TaskChecker {
     }
 
     private void CsCompileSingleCsFile(StringBuilder sb, FileAndItsTest data) {
-        CsCompileSingleCsFile(sb, data, true);
-    }
-
-    private void CsCompileSingleCsFile(StringBuilder sb, FileAndItsTest data, boolean needManualProcessing) {
         String csFileToCompile = data.fileName;
         if (!Files.exists(Paths.get(csFileToCompile))) {
             csFileToCompile = workingDir + data.fileName;
         }
+
         if (!Files.exists(Paths.get(csFileToCompile))) {
             return;
         }
+
         try {
-            if (needManualProcessing) {
-                //removePackageFromJavaFile(csFileToCompile);
-                //String correctJavaName = getCorrectJavaName(csFileToCompile) + ".cs";
-                String correctCsName = csFileToCompile;
-                Path pathFrom = new File(csFileToCompile).toPath();
-                Path pathTo = new File(workingDir.substring(2) + correctCsName).toPath();
+            Path pathToFileToCompile = new File(csFileToCompile).toPath();
+            data.fileName = pathToFileToCompile.toAbsolutePath().toString();
 
-                Files.move(pathFrom, pathTo, StandardCopyOption.REPLACE_EXISTING);
-                data.fileName = pathTo.toAbsolutePath().toString();
-            }
-            String csCompilerBat = new File(workingDir.substring(2) + "runcsc.bat").getAbsolutePath();
+            //ToDO: read CSC PAth from settings
+            String csCompilerPath = "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe";
 
-            ProcessBuilder builder = new ProcessBuilder(csCompilerBat, new File(data.fileName).getAbsolutePath());
+            ProcessBuilder builder = new ProcessBuilder(csCompilerPath, new File(data.fileName).getAbsolutePath());
             builder.redirectErrorStream(true);
             builder.directory(new File(workingDir));
             Process p = builder.start();
@@ -97,8 +89,9 @@ public class CsTaskChecker extends TaskChecker {
                 return;
             }
         } catch (IOException ex) {
-            PvkLogger.getLogger(MyPylint.class.getName())
-                    .error("Failed to compile Java code! " + ex.getMessage());
+            PvkLogger.getLogger(CsTaskChecker.class.getName())
+                    .error("Failed to compile CS code! " + ex.getMessage());
+            return;
         }
 
         RunTestsForExe(sb, data);
@@ -107,10 +100,12 @@ public class CsTaskChecker extends TaskChecker {
 
     private void RunTestsForExe(StringBuilder sb, FileAndItsTest data) {
         try {
-            String relative = new File(workingDir).toURI().relativize(new File(data.fileName).toURI()).getPath();
+            String relative = new File(workingDir).toURI()
+                    .relativize(new File(data.fileName).toURI()).getPath()
+                    .replace(".cs", ".exe");
 
             ProcessBuilder builder = new ProcessBuilder("python.exe",
-                    "csTestRunner.py", relative.replace("\\","."),
+                    "csTestRunner.py", relative,
                     data.testName,
                     isInEasyMode() ? "True" : "");
             builder.redirectErrorStream(true);
@@ -118,62 +113,13 @@ public class CsTaskChecker extends TaskChecker {
             Process p = builder.start();
 
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            //BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), "cp1251"));
             String line;
+            sb.delete(0, sb.length());
             while ((line = r.readLine()) != null) {
                 sb.append(line).append("\n");
             }
         } catch (IOException ex) {
             Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    private void removePackageFromJavaFile(String fileName) {
-        final String maiPackage = "ru.mai.";
-        StringBuilder sb = new StringBuilder();
-        try {
-            List<String> linesOfFile = Files.readAllLines(new File(fileName).toPath());
-            for (String line : linesOfFile) {
-                if (line.trim().startsWith("package ")) continue;
-                if (line.contains(maiPackage)) {
-                    line = line.replace(maiPackage, "");
-                }
-                sb.append(line).append("\n");
-            }
-            Files.write(new File(fileName).toPath(), Collections.singleton(sb.toString()));
-        } catch (IOException ex) {
-            Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-
-    private String getCorrectJavaName(String fileName) {
-        //TODO: Fix for classes which don't have public modifier.
-        try {
-            List<String> linesOfFile = Files.readAllLines(new File(fileName).toPath());
-            for (String line : linesOfFile) {
-                if (!line.contains("public class ")) continue;
-                String[] classHeader = line.split(" ");
-                return classHeader[classHeader.length - 2];
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return fileName;
-    }
-
-    private boolean hasMainClass(String fileName) {
-        try {
-            List<String> linesOfFile = Files.readAllLines(new File(fileName).toPath());
-            for (String line : linesOfFile) {
-                if (!line.contains("public static void main(")) continue;
-                return true;
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(MyPylint.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return false;
     }
 }

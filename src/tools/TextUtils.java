@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,11 +36,15 @@ public class TextUtils {
 
     public static String getPrettyErrorsCpp(String[] reportLines) {
         int i = 0;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
+        result.append("<pre>");
         while (i < reportLines.length) {
-            result.append(reportLines[i] + "\n");
+            result.append(reportLines[i])
+                    .append("\r\n");
             i++;
         }
+
+        result.append("</pre>");
         return result.toString();
     }
 
@@ -50,12 +55,17 @@ public class TextUtils {
      */
     public static String getPrettyErrorsPython(String[] reportLines) {
         int i = 0;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         while (i < reportLines.length - 2) {
             i++;
             result.append(reportLines[i].replaceAll("^(.*)(\\.py:)(.*)$",
-                    "[ERROR]Line $3") + "\n");
+                    "[ERROR]Line $3")).append("\n");
         }
+
+        if (result.isEmpty()) {
+            Arrays.stream(reportLines).forEach(result::append);
+        }
+
         return result.toString();
     }
 
@@ -118,6 +128,10 @@ public class TextUtils {
     }
 
     public static Integer cppErrorAmountDetectionInFile(String string) {
+        return javaErrorAmountDetectionInFile(string);
+    }
+
+    public static Integer csErrorAmountDetectionInFile(String string) {
         return javaErrorAmountDetectionInFile(string);
     }
 

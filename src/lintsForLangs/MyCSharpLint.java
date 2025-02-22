@@ -6,12 +6,9 @@
 package lintsForLangs;
 import tools.PvkLogger;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 /**
  *
  * @author user
@@ -20,10 +17,10 @@ public class MyCSharpLint {
     public MyCSharpLint() {
     }
 
-    public void startCslint(String attachmentName) {
+    public void startCsLint(String attachmentName) {
         try {
             ProcessBuilder builder = new ProcessBuilder(
-                    "python.exe", ".\\csharpLint\\cslint.py", attachmentName);
+                    "python.exe", ".\\csharpLint\\csLintRunner.py", attachmentName);
             builder.redirectErrorStream(true);
             builder.redirectOutput(new File(attachmentName + "_errorReport.txt"));
             Process p = builder.start();
