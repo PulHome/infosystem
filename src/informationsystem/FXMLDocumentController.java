@@ -461,7 +461,7 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void copyAndAssignSelectedIssues(ActionEvent event) {
-        Pattern pattern = Pattern.compile("\\d{6,7}", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\d+", Pattern.CASE_INSENSITIVE);
 
         String nameTo = "";
 
@@ -519,7 +519,7 @@ public class FXMLDocumentController implements Initializable {
             }
 
             if (issues != null) {
-                issues.stream().forEach(issue -> processIssue(issue, easyMode));
+                issues.forEach(issue -> processIssue(issue, easyMode));
             }
 
         }

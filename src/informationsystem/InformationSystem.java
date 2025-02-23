@@ -26,8 +26,6 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,13 +36,6 @@ import java.util.stream.Stream;
  * @author Zerg0s
  */
 public class InformationSystem extends Application {
-
-    private final String[] updatersList = new String[]{
-            "https://textanalysis.ru/pvkrobot/",
-            "http://boberpul2.asuscomm.com:8585/"};
-    private String onlineResource = "https://textanalysis.ru/pvkrobot/";
-    private String onlineXml;
-
     @Override
     public void start(Stage stage) {
         try {
@@ -66,85 +57,6 @@ public class InformationSystem extends Application {
         } catch (IOException ex) {
             ex.printStackTrace();
             Logger.getLogger(InformationSystem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void checkNewVersion(String oldVersion) {
-        float onlineVersion = Float.parseFloat(oldVersion);
-        final int oldUploadId = getOldUploadId("ProjectKey.xml");
-
-        // Find the highest online version in all available sources
-        for (String path : updateUpdatersList(updatersList)) {
-            String onlineXmlTemp = downloadOnlineXml(path);
-            if (Float.parseFloat(checkNewOnlineVersion(onlineXmlTemp)) > onlineVersion) {
-                onlineVersion = Float.parseFloat(checkNewOnlineVersion(onlineXmlTemp));
-                onlineResource = path.substring(0, path.lastIndexOf('/') + 1);
-                onlineXml = onlineXmlTemp;
-            }
-
-            final int onlineUploadId = getUploadId(onlineXmlTemp);
-            if (checkUploadIsRequired(onlineUploadId, oldUploadId)) {
-                ZipFile appZip = new ZipFile();
-                appZip.makeZip(".\\pylint", "tests.zip");
-                boolean testsWereUploaded = uploadTests(onlineResource + "upload.php", String.valueOf(onlineUploadId));
-                if (testsWereUploaded) {
-                    saveTestUploadStatus(onlineUploadId);
-                }
-            }
-        }
-        float finalOnlineVersion = onlineVersion;
-        if (Float.parseFloat(oldVersion) < finalOnlineVersion) {
-            //show alert on UI and start update if OK
-            Platform.runLater(() -> {
-                ButtonType myOK = new ButtonType("Обновить", ButtonBar.ButtonData.OK_DONE);
-                String newVersionAvailable = "Доступна новая версия!";
-                String oldVersionData = "Текущая версия: " + oldVersion + ".\nВсе несохраненные данные будут утеряны.";
-                String newVersionData = "Новая версия: " + finalOnlineVersion;
-                newVersionData += getNewVersionDescription(onlineXml);
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, newVersionAvailable, myOK, ButtonType.CANCEL);
-                alert.setHeaderText(newVersionData);
-                alert.setContentText(oldVersionData);
-                alert.setTitle(newVersionAvailable);
-
-                Optional<ButtonType> result = alert.showAndWait();
-                //download main distributive - mandatory file for a new version
-                //should be named InformationSystem.jar_new.jar
-                if (!result.isPresent() || result.get() == myOK) {
-                    // if (updateFile(XmlReader.getFilePath(onlineXml, "main"))) {
-//                    // Run a java app in a separate system process
-//                        for (String file : listFiles(".")) {
-//                            // if there is a 'standard' bat to run our program
-//                            if (file.contains("Run") && file.contains(".bat") && file.contains("InformationSystem")) {
-//                                new Thread(() -> {
-//                                    try {
-//                                        Process proc = Runtime.getRuntime().exec(file);
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }).start();
-                    //System.exit(0);
-//                            }
-//                    String runCmdLine ="rename InformationSystem.jar_new.jar InformationSystem.jar";
-//                    String runCmdLine2 = "java.exe --module-path \".\\lib\" --add-modules javafx.controls,javafx.fxml " +
-//                            " -Dfile.encoding=UTF-8 -classpath \"InformationSystem.jar;.\\lib\\javafx-swt.jar;" +
-//                            ".\\lib\\javafx.web.jar;.\\lib\\javafx.base.jar;.\\lib\\javafx.fxml.jar;" +
-//                            ".\\lib\\javafx.media.jar;.\\lib\\javafx.swing.jar;.\\lib\\javafx.controls.jar;" +
-//                            ".\\lib\\javafx.graphics.jar\" informationsystem.InformationSystem";
-//                    try {
-//                        Process proc = Runtime.getRuntime().exec(runCmdLine);
-//                        Process proc2 = Runtime.getRuntime().exec(runCmdLine2);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    System.exit(0);
-                    // }
-                    ArrayList<Pair<String, String>> files = OnlineXmlReader.getAllAdditionalFiles(onlineXml);
-                    for (Pair<String, String> fileFromTo : files) {
-                        updateFile(fileFromTo);
-                    }
-                    System.exit(0);
-                }
-            });
         }
     }
 
@@ -297,39 +209,6 @@ public class InformationSystem extends Application {
             e.printStackTrace();
             return "";
         }
-    }
-
-    private String checkNewOnlineVersion(String readXml) {
-        try {
-            String version = XmlReader.getTextTagValue("version", XmlReader.loadXMLFromString(readXml));
-            return !version.equals("") ? version : "0";
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            logger.log(Level.FINE, e.getMessage());
-            return "0";
-        }
-    }
-
-    private boolean updateFile(Pair<String, String> pathFromPathTo) {
-        StringBuilder resultingPath = new StringBuilder(onlineResource);
-        if (pathFromPathTo == null || pathFromPathTo.getKey().isBlank()) {
-            return false;
-        }
-
-        resultingPath.append(pathFromPathTo.getKey());
-        try (InputStream in = new URL(resultingPath.toString()).openStream()) {
-            Files.copy(in, Paths.get(pathFromPathTo.getValue()), StandardCopyOption.REPLACE_EXISTING);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private Set<String> listFiles(String dir) {
-        return Stream.of(Objects.requireNonNull(new File(dir).listFiles()))
-                .filter(file -> !file.isDirectory())
-                .map(File::getName)
-                .collect(Collectors.toSet());
     }
 
     public static void main(String[] args) {
