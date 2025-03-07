@@ -291,7 +291,7 @@ public class FXMLDocumentController implements Initializable {
             return;
         }
 
-        lintErrorsNotificationsType.setItems(FXCollections.observableArrayList(getData()));
+        lintErrorsNotificationsType.setItems(FXCollections.observableArrayList(getLintReportModeData()));
         ObservableList<LintReportMode> items = lintErrorsNotificationsType.getItems();
         int itemToSelect = items.get(0).getModeNumber();
         for (int i = 0; i < items.size(); i++) {
@@ -304,7 +304,7 @@ public class FXMLDocumentController implements Initializable {
         lintErrorsNotificationsType.getSelectionModel().select(itemToSelect);
     }
 
-    private List<LintReportMode> getData() {
+    private List<LintReportMode> getLintReportModeData() {
         List<LintReportMode> retList = new ArrayList<LintReportMode>();
         retList.add(LintReportMode.valueOf("Default - По умолчанию(показывать ошибки)"));
         retList.add(LintReportMode.valueOf("Hard - Только количество ошибок"));
@@ -321,7 +321,7 @@ public class FXMLDocumentController implements Initializable {
                         props.apiAccessKey = owner.getApiKey();
                         comboxProject.setItems(
                                 FXCollections.observableArrayList(projects.stream().map(
-                                        pr -> pr.getProjectName()
+                                        Project::getProjectName
                                 ).toArray()));
                         break;
                     }
@@ -348,9 +348,9 @@ public class FXMLDocumentController implements Initializable {
 
         if (!props.projectKey.isEmpty() && !props.apiAccessKey.isEmpty()
                 && !props.url.isEmpty() && !props.iterationName.isEmpty()) {
-            logger.info("Selected values: " + props.url + "\n"
-                    + props.apiAccessKey.substring(props.apiAccessKey.length() - 3) + "\n" + props.projectKey
-                    + "\n" + props.iterationName);
+//            logger.info("Selected values: " + props.url + "\n"
+//                    + props.apiAccessKey.substring(props.apiAccessKey.length() - 3) + "\n" + props.projectKey
+//                    + "\n" + props.iterationName);
 
             updateProjectIterationsAsync(props);
         }
