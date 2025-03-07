@@ -93,31 +93,16 @@ public class FXMLDocumentController implements Initializable {
     private CheckBox checkBoxPerevod;
 
     @FXML
-    private ComboBox comboBoxPythonRating;
-
-    @FXML
-    private RadioButton radioButtonStatusClosed;
-
-    @FXML
-    private RadioButton radioButtonStatusApproved;
-
-    @FXML
     private RadioButton radioButtonAppointForStudent;
 
     @FXML
     private RadioButton radioButtonAppointForProfessor;
 
     @FXML
-    private CheckBox checkBoxJavaErrScan;
-
-    @FXML
     private CheckBox easyModeCheck;
 
     @FXML
     private CheckBox checkAllIterations;
-
-    @FXML
-    private CheckBox checkBoxPythonRateScan;
 
     @FXML
     private Button fileChoose;
@@ -178,6 +163,21 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private Tab tasksTab;
+    
+    @FXML
+    public CheckBox chkPythonUseSystem;
+    @FXML
+    public TextField txtPythonPath;
+    @FXML
+    public CheckBox chkJavaUseSystem;
+    @FXML
+    public TextField txtJavaPath;
+    @FXML
+    public CheckBox chkCSharpUseSystem;
+    @FXML
+    public TextField txtDotnetPath;
+    @FXML
+    public CheckBox chkUseModernDotnet;
 
     private ConnectionWithRedmine connectionToRedmine;
     private RedmineAlternativeReader journalReader;
@@ -215,19 +215,6 @@ public class FXMLDocumentController implements Initializable {
         comboxUserName.setItems(userNames);
 
         this.comboxProject.setItems(FXCollections.observableArrayList(projects));
-
-        ArrayList<Float> ratingValues = new ArrayList<Float>();
-        for (float a = 10; a >= -3.00; a = (float) (a - 0.25)) {
-            ratingValues.add(a);
-        }
-
-        comboBoxPythonRating.setItems(FXCollections.observableArrayList(ratingValues));
-
-        final ToggleGroup groupIssueStatus = new ToggleGroup();
-        radioButtonStatusClosed.setToggleGroup(groupIssueStatus);
-        radioButtonStatusClosed.setSelected(true);
-        radioButtonStatusClosed.requestFocus();
-        radioButtonStatusApproved.setToggleGroup(groupIssueStatus);
 
         final ToggleGroup groupAppointment = new ToggleGroup();
         radioButtonAppointForStudent.setToggleGroup(groupAppointment);
@@ -319,7 +306,7 @@ public class FXMLDocumentController implements Initializable {
 
     private List<LintReportMode> getData() {
         List<LintReportMode> retList = new ArrayList<LintReportMode>();
-        retList.add(LintReportMode.valueOf("Default - По умолчанию(показывать, где ошибки)"));
+        retList.add(LintReportMode.valueOf("Default - По умолчанию(показывать ошибки)"));
         retList.add(LintReportMode.valueOf("Hard - Только количество ошибок"));
         retList.add(LintReportMode.valueOf("Nightmare - Только наличие ошибок"));
         return retList;
@@ -548,14 +535,7 @@ public class FXMLDocumentController implements Initializable {
             logger.logHtmlIssueLink(issue, props.url + "/issues/" + issue.getId());
             logger.info(" - " + issue.toString());
             Double pyRating = 10.0;
-            int javaErrorLimit = 5;
-            if (comboBoxPythonRating.getValue() != null) {
-                pyRating = Double.parseDouble(comboBoxPythonRating.getValue().toString());
-            }
-
-            if (textFieldJavaErrorAmount.getText() != null) {
-                javaErrorLimit = Integer.parseInt(textFieldJavaErrorAmount.getText());
-            }
+            int javaErrorLimit = 0;
 
             //connectionToRedmine.setVersionForCheck(comboxVersion.getValue().toString(), issue);
             String student = getStudentName(journalReader.getJournals(issue.getId().toString()), connectionToRedmine.getProfessorName());
@@ -629,17 +609,6 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void handlePyhtonRatingScanCheck() {
-        if (checkBoxPythonRateScan.isSelected()) {
-            float pythonRating = (float) 10.0;
-            if (comboBoxPythonRating.getValue() != null) {
-                pythonRating = Float.parseFloat(comboBoxPythonRating.getValue().toString());
-            }
-            connectionToRedmine.setRating(pythonRating);
-        }
-    }
-
-    @FXML
     private void handlePerevodCheck() {
         if (checkBoxPerevod.isSelected()) {
             connectionToRedmine.setReturnBackIfAllOk(true);
@@ -649,17 +618,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void handleIssueStatusRadioButton() {
-        if (radioButtonStatusApproved.isSelected()) {
-            connectionToRedmine.setIssueStatus(4);
-        } else if (radioButtonStatusClosed.isSelected()) {
-            connectionToRedmine.setIssueStatus(5);
-        }
-    }
-
-    @FXML
     private void handeRadioButtonAppointments() {
-
         if (radioButtonAppointForStudent.isSelected()) {
             connectionToRedmine.setAssigneeName(connectionToRedmine.getStudentName());
         } else if (radioButtonAppointForProfessor.isSelected()) {
@@ -669,15 +628,7 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private void handleCheckboxNeedLint() {
-        if (!checkboxNeedLint.isSelected()) {
-            connectionToRedmine.setLint(false);
-            checkBoxJavaErrScan.setSelected(false);
-            checkBoxPythonRateScan.setSelected(false);
-        } else {
-            connectionToRedmine.setLint(true);
-            checkBoxJavaErrScan.setSelected(true);
-            checkBoxPythonRateScan.setSelected(true);
-        }
+        connectionToRedmine.setLint(checkboxNeedLint.isSelected());
     }
 
     @FXML
@@ -727,7 +678,7 @@ public class FXMLDocumentController implements Initializable {
                     String badStudent =
                             new RedmineAlternativeReader(props.url, props.apiAccessKey, props.projectKey)
                                     .getStudentsName(issue.getId(), connectionToRedmine.getProfessorName());
-                    body.append(badStudent + ":\n" + issue.toString());
+                    body.append(badStudent).append(":\n").append(issue);
                     body.append("\n");
                 }
                 alert.setContentText(body.toString());
@@ -781,13 +732,6 @@ public class FXMLDocumentController implements Initializable {
             boolean isForceCheck = true;
             double pyRating = 10.0;
             int javaErrorLimit = 0;
-            if (comboBoxPythonRating.getValue() != null) {
-                pyRating = Double.parseDouble(comboBoxPythonRating.getValue().toString());
-            }
-
-            if (textFieldJavaErrorAmount.getText() != null) {
-                javaErrorLimit = Integer.parseInt(textFieldJavaErrorAmount.getText());
-            }
 
             String student = getStudentName(journalReader.getJournals(currentIssue.getId().toString()), connectionToRedmine.getProfessorName());
 
