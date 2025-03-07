@@ -69,9 +69,6 @@ public class FXMLDocumentController implements Initializable {
     private LoggerWindowController loggerWindowController;
 
     @FXML
-    private Button buttonDown;
-
-    @FXML
     private ComboBox comboxVersion;
 
     @FXML
@@ -105,9 +102,6 @@ public class FXMLDocumentController implements Initializable {
     private CheckBox checkAllIterations;
 
     @FXML
-    private Button fileChoose;
-
-    @FXML
     private ListView<CellWithCheckBox> students;
 
     @FXML
@@ -118,12 +112,6 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private ComboBox lintErrorsNotificationsType;
-
-    @FXML
-    private Button btnTaskPrev;
-
-    @FXML
-    private Button btnTaskNext;
 
     @FXML
     private Button btnGetResults;
@@ -144,26 +132,11 @@ public class FXMLDocumentController implements Initializable {
     private TextArea txtTestOutput;
 
     @FXML
-    private Button btnAddNewTask;
-
-    @FXML
-    private Button btnAddNewTest;
-
-    @FXML
-    private Button btnDetails;
-
-    @FXML
-    private Button btnCheckClosed;
-
-    @FXML
     private Button btnDownloadAll;
 
     @FXML
-    private Button btnCheckPlagiat;
-
-    @FXML
     private Tab tasksTab;
-    
+
     @FXML
     public CheckBox chkPythonUseSystem;
     @FXML
@@ -211,6 +184,7 @@ public class FXMLDocumentController implements Initializable {
             comboxProject.setValue(settingsReader.getSelectedProject().getProjectName());
             props.projectKey = settingsReader.getSelectedProject().getId();
         }
+
         ObservableList<String> userNames = FXCollections.observableArrayList(settingsReader.getUsersNameList());
         comboxUserName.setItems(userNames);
 
@@ -237,6 +211,12 @@ public class FXMLDocumentController implements Initializable {
         //set redmineURL
         textFieldURL.setText(props.url);
         textFieldURL.setDisable(true);
+
+        //init checker settings and paths
+        //ToDo: save and load "chkUseModernDotnet" value, now leave it with manual choice
+        settingsReader.setUseModernDotnet(chkUseModernDotnet.isSelected());
+
+        logger.info(LocalDateTime.now().format(formatter) + ": ======Init Completed. Robot is tarted.========\n");
     }
 
     private LoggerWindowController showLoggerStage(PvkLogger logger) {
@@ -474,16 +454,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void handleButtonAction(ActionEvent event) {
+    private void handleButtonCheckAllMyIssues(ActionEvent event) {
         LoggerWindowController loggerWindow = showLoggerStage(logger);
         logger.setLoggerControllerWindow(loggerWindow);
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runMainCheckAllTasks();
-            }
-        });
+        Thread thread = new Thread(this::runMainCheckAllTasks);
         thread.start();
     }
 
@@ -1050,4 +1025,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private static final PvkLogger logger = PvkLogger.getLogger(FXMLDocumentController.class.getSimpleName(), false);
+
+    @FXML
+    private void handleUseSystemEvent(ActionEvent actionEvent) {
+        txtDotnetPath.setDisable(chkCSharpUseSystem.isSelected());
+        txtPythonPath.setDisable(chkPythonUseSystem.isSelected());
+        txtJavaPath.setDisable(chkJavaUseSystem.isSelected());
+    }
 }

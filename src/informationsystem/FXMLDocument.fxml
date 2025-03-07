@@ -80,7 +80,7 @@
                      <GridPane.margin>
                         <Insets right="12.0" />
                      </GridPane.margin></TextField>
-                        <Button fx:id="buttonDown" defaultButton="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="63.0" prefWidth="256.0" text="Начать проверку задач" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+                        <Button fx:id="buttonDown" defaultButton="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonCheckAllMyIssues" prefHeight="63.0" prefWidth="256.0" text="Начать проверку задач" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.valignment="CENTER">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font></Button>
@@ -228,7 +228,7 @@
                                                 <Insets top="3.0" />
                                              </HBox.margin>
                                           </Label>
-                                          <CheckBox fx:id="chkPythonUseSystem" alignment="BOTTOM_LEFT" mnemonicParsing="false" selected="true" text="Как в системе">
+                                          <CheckBox fx:id="chkPythonUseSystem" onAction="#handleUseSystemEvent" alignment="BOTTOM_LEFT" mnemonicParsing="false" selected="true" text="Как в системе">
                                              <HBox.margin>
                                                 <Insets top="3.0" />
                                              </HBox.margin>
@@ -250,7 +250,7 @@
                                                 <Insets top="3.0" />
                                              </HBox.margin>
                                           </Label>
-                                          <CheckBox fx:id="chkJavaUseSystem" alignment="BOTTOM_LEFT" mnemonicParsing="false" selected="true" text="Как в системе">
+                                          <CheckBox fx:id="chkJavaUseSystem" onAction="#handleUseSystemEvent" alignment="BOTTOM_LEFT" mnemonicParsing="false" selected="true" text="Как в системе">
                                              <HBox.margin>
                                                 <Insets top="3.0" />
                                              </HBox.margin>
@@ -272,7 +272,7 @@
                                                 <Insets top="3.0" />
                                              </HBox.margin>
                                           </Label>
-                                          <CheckBox fx:id="chkCSharpUseSystem" alignment="BOTTOM_LEFT" mnemonicParsing="false" selected="true" text="Как в системе">
+                                          <CheckBox fx:id="chkCSharpUseSystem" onAction="#handleUseSystemEvent" alignment="BOTTOM_LEFT" mnemonicParsing="false" selected="true" text="Как в системе">
                                              <HBox.margin>
                                                 <Insets top="3.0" />
                                              </HBox.margin>

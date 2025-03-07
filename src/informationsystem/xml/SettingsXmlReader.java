@@ -36,6 +36,7 @@ public class SettingsXmlReader extends XmlReader {
     private String selectedVersion = "";
     private LintReportMode selectedLintMode;
 
+    private boolean useModernDotnet = true;
 
     public SettingsXmlReader(String xmlPath) {
         super(xmlPath);
@@ -162,6 +163,14 @@ public class SettingsXmlReader extends XmlReader {
 
     public void setProjectKey(String projectkey) {
         this.projectKey = projectkey;
+    }
+
+    public boolean isUseModernDotnet() {
+        return useModernDotnet;
+    }
+
+    public void setUseModernDotnet(boolean useModernDotnet) {
+        this.useModernDotnet = useModernDotnet;
     }
 
     public void readConfigXML(String filePath) {
