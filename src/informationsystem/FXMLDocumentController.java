@@ -216,7 +216,7 @@ public class FXMLDocumentController implements Initializable {
         //ToDo: save and load "chkUseModernDotnet" value, now leave it with manual choice
         settingsReader.setUseModernDotnet(chkUseModernDotnet.isSelected());
 
-        logger.info(LocalDateTime.now().format(formatter) + ": ======Init Completed. Robot is tarted.========\n");
+        logger.info(LocalDateTime.now().format(formatter) + ": ======Init Completed. Robot is started.========\n");
     }
 
     private LoggerWindowController showLoggerStage(PvkLogger logger) {
@@ -515,7 +515,15 @@ public class FXMLDocumentController implements Initializable {
             //connectionToRedmine.setVersionForCheck(comboxVersion.getValue().toString(), issue);
             String student = getStudentName(journalReader.getJournals(issue.getId().toString()), connectionToRedmine.getProfessorName());
             logger.info("Student is '" + student + "'");
-            ConfiguredTask confTask = new ConfiguredTaskBuilder().setIssue(issue).setTaskCompleter(student).setIsNeededForceCheck(needForced).setIsLintRequired(connectionToRedmine.getLint()).setRequiredPythonRating(pyRating).setJavaErrors(javaErrorLimit).setEasyMode(easyMode).setLintReportMode((LintReportMode) lintErrorsNotificationsType.getValue()).createConfiguredTask();
+            ConfiguredTask confTask = new ConfiguredTaskBuilder().setIssue(issue)
+                    .setTaskCompleter(student)
+                    .setIsNeededForceCheck(needForced)
+                    .setIsLintRequired(connectionToRedmine.getLint())
+                    .setRequiredPythonRating(pyRating).setJavaErrors(javaErrorLimit)
+                    .setEasyMode(easyMode)
+                    .setLintReportMode((LintReportMode) lintErrorsNotificationsType.getValue())
+                    .setNeedModernDotnet(settingsReader.isUseModernDotnet())
+                    .createConfiguredTask();
             connectionToRedmine.checkIssueAttachments(confTask);
 
             journals = journalReader.getJournals(issue.getId().toString());
@@ -719,6 +727,7 @@ public class FXMLDocumentController implements Initializable {
                     .setJavaErrors(javaErrorLimit)
                     .setEasyMode(easyMode)
                     .setLintReportMode((LintReportMode) lintErrorsNotificationsType.getValue())
+                    .setNeedModernDotnet(settingsReader.isUseModernDotnet())
                     .createConfiguredTask();
 
             if (task.getLintReportMode() == null) {

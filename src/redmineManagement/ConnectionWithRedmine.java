@@ -185,6 +185,7 @@ public class ConnectionWithRedmine {
         if (!TextUtils.isNullOrEmpty(attach.getAuthor().getFullName())) {
             task.setTaskCompleter(attach.getAuthor().getFullName());
         }
+
         checkSingleFileAttachment(attach, task);
     }
 
@@ -320,7 +321,7 @@ public class ConnectionWithRedmine {
             CsTaskChecker csTaskChecker = new CsTaskChecker(issue.getSubject(), fileToManage, task.isEasyMode());
             String testFolder = csTaskChecker.getNameForKnownTest();
             if (!testFolder.isBlank()) {
-                processResult = doCsTaskCheck(csTaskChecker, issue);
+                processResult = doCsTaskCheck(csTaskChecker, issue, task.isNeedModernDotnet());
             }
         } else {
             logger.warning("Failed on Lint");
@@ -898,10 +899,10 @@ public class ConnectionWithRedmine {
         return success;
     }
 
-    private int doCsTaskCheck(CsTaskChecker checker, Issue issue) {
+    private int doCsTaskCheck(CsTaskChecker checker, Issue issue, boolean needModernDotnet) {
         String result = "";
         try {
-            result = checker.startCsCheck();
+            result = checker.startCsCheck(needModernDotnet);
         } catch (UnsupportedOperationException ex) {
             return -1;
         }

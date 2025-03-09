@@ -3,6 +3,7 @@ package data;
 import com.taskadapter.redmineapi.bean.Issue;
 
 public class ConfiguredTask {
+    private final boolean needModernDotnet;
     private Issue issue;
     private String taskCompleter;
     private boolean isNeededForceCheck;
@@ -19,7 +20,8 @@ public class ConfiguredTask {
                           boolean isLintRequired,
                           double requiredPythonRating,
                           int javaErrors,
-                          boolean easyMode, LintReportMode lintReportMode) {
+                          boolean easyMode, LintReportMode lintReportMode,
+                          boolean needModernDotnet) {
         this.isLintRequired = isLintRequired;
         this.isNeededForceCheck = isNeededForceCheck;
         this.issue = issue;
@@ -28,6 +30,7 @@ public class ConfiguredTask {
         this.maxJavaLintErrors = javaErrors;
         this.isInEasyMode = easyMode;
         this.lintReportMode = lintReportMode;
+        this.needModernDotnet = needModernDotnet;
     }
 
     public LintReportMode getLintReportMode() {
@@ -97,5 +100,9 @@ public class ConfiguredTask {
 
     public boolean isEasyMode() {
         return isInEasyMode;
+    }
+
+    public boolean isNeedModernDotnet() {
+        return needModernDotnet;
     }
 }

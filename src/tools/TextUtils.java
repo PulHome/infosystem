@@ -195,4 +195,22 @@ public class TextUtils {
         String[] parts = pathOfTheTask.split("_")[0].split("\\\\");
         return parts.length > 2 ? parts[2] : "";
     }
+
+    public static String makePrettyCsErrors(String line) {
+        if (line.contains("C:\\")) {
+            int start = line.indexOf(".cs");
+            int end = line.lastIndexOf('[');
+            if (end == -1) {
+                end = line.length();
+            }
+
+            if (start == -1) {
+                start = 0;
+            }
+
+            line = line.substring(start, end);
+        }
+
+        return line;
+    }
 }

@@ -11,6 +11,7 @@ public class ConfiguredTaskBuilder {
     private int javaErrors;
     private boolean easyMode;
     private LintReportMode lintReportMode;
+    private boolean needModernDotnet;
 
     public ConfiguredTaskBuilder setIssue(Issue issue) {
         this.issue = issue;
@@ -52,7 +53,17 @@ public class ConfiguredTaskBuilder {
         return this;
     }
 
+    public ConfiguredTaskBuilder setNeedModernDotnet(boolean needModernDotnet) {
+        this.needModernDotnet = needModernDotnet;
+        return this;
+    }
+
+    public boolean isNeedModernDotnet() {
+        return needModernDotnet;
+    }
+
     public ConfiguredTask createConfiguredTask() {
-        return new ConfiguredTask(issue, taskCompleter, isNeededForceCheck, isLintRequired, requiredPythonRating, javaErrors, easyMode, lintReportMode);
+        return new ConfiguredTask(issue, taskCompleter, isNeededForceCheck,
+                isLintRequired, requiredPythonRating, javaErrors, easyMode, lintReportMode, needModernDotnet);
     }
 }
