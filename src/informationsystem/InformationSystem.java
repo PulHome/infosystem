@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +20,11 @@ public class InformationSystem extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("./FXMLDocument.fxml"));
+            String fileName = "/FXMLDocument.fxml";
+            URL url = getClass().getResource(fileName);
+            System.out.println(url.toString());
+
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             FXMLDocumentController controller = loader.getController();
             loader.setRoot(this);
@@ -29,7 +34,7 @@ public class InformationSystem extends Application {
             stage.setTitle("Проверка задач в системе Redmine");
             stage.setScene(scene);
             stage.setOnHidden(e -> controller.shutdown());
-            stage.getIcons().add(new Image(Objects.requireNonNull(InformationSystem.class.getResourceAsStream("robot.png"))));
+            stage.getIcons().add(new Image(Objects.requireNonNull(InformationSystem.class.getResourceAsStream("/robot.png"))));
             stage.show();
         } catch (IOException ex) {
             ex.printStackTrace();

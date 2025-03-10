@@ -238,7 +238,7 @@ public class FXMLDocumentController implements Initializable {
                 stage.setTitle("Логгер ПВК");
                 stage.setScene(sceneForLogger);
                 stage.initModality(Modality.NONE);
-                stage.getIcons().add(new Image(FXMLDocumentController.class.getResourceAsStream("robot.png")));
+                stage.getIcons().add(new Image(FXMLDocumentController.class.getResourceAsStream("/robot.png")));
                 stage.setOnHidden(e -> {
                     loggerWindowController.shutdown();
                 });
