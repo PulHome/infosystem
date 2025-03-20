@@ -1,6 +1,6 @@
 class Locale:
     ReceivedAnswer = "Received answer: "
-    Total = "Finally: "
+    Total = "\n\nFinally: "
     DoesntHaveMandatory = "Source code is invalid or some tests were failed. Read the task more carefully! Please retry."
     NotInFunctional = "Source code is not in functional style. Please retry. Only one language operator is allowed."
     HaveRestricted = "Source code may contain restricted values or functions. Please retry."
@@ -8,7 +8,7 @@ class Locale:
     Timeout = "Timeout on the next test."
     GeneralError = "An unknown error was found, please contact your supervisor."
     Passed = "Passed"
-    EasyModeHelp = "A wrong answer was received for the input:\n%s"
+    EasyModeHelp = "\nA wrong answer was received for the input:\n%s"
     CrashFound = "\nProgram crash found in your reply:\n"
     YourAnswer = "\nYour answer is: \n"
     Test = "Test"
