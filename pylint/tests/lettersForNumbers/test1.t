@@ -1,1 +1,1 @@
-Ввод: Hello World!
+Hello World!

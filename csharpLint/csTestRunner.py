@@ -129,9 +129,9 @@ def checkConfigurationAndRestrictions(fileToCheck, testConfiguration):
 
     if "deny" in testConfiguration:
         denyValues = list(map(lambda x: x.strip(), str(testConfiguration["deny"]).split(',')))
-        sourceCode = open(fileToCheck, "r", encoding="utf-8").readlines()
+        sourceCode = open(fileToCheck, "r", encoding="utf-8", errors='replace').readlines()
         cleanSourceCode = " ".join(map(lambda line:
-                              line[:len(line) + 1 + line.find("#")].strip(), sourceCode))
+                                       line[:len(line) + 1 + line.find("#")].strip(), sourceCode))
         for value in denyValues:
             if value in cleanSourceCode:
                 print(f"{Locale.HaveRestricted}\n{Locale.Failed}")
@@ -196,9 +196,9 @@ def main():
             easyMode = True if sys.argv[3] else easyMode
             # easyMode = False
 
-    #print(" ".join(sys.argv))
+    # print(" ".join(sys.argv))
 
-    #TODO: НЕ хранить тесты в папке с Питоном.
+    # TODO: НЕ хранить тесты в папке с Питоном.
     dirWithTests = rf"..\pyLint\tests\{dirToCheck}\\"
     testConfiguration = readConfing(dirWithTests + "config.conf")
 

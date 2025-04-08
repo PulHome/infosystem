@@ -46,6 +46,10 @@ def readConfing(pathTocfg):
     elif "lambda" in dictOfConfigs["func"]:
         lambdaStr = dictOfConfigs["func"]
         dictOfConfigs["func"] = lambda x, y: eval(lambdaStr)(x, y)
+    
+    #разделяем Питон и другие языки
+    if "denyPy" in dictOfConfigs:
+        dictOfConfigs["deny"] = dictOfConfigs["denyPy"]
 
     return dictOfConfigs
 

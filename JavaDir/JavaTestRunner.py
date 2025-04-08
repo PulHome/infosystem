@@ -35,6 +35,8 @@ def readConfing(pathTocfg):
 
     if dictOfConfigs["func"] == "contains":
         dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
+    elif dictOfConfigs["func"] == "equals":
+        dictOfConfigs["func"] = lambda x, y: x.lower() in y.lower()
     elif dictOfConfigs["func"] == "any":
         dictOfConfigs["func"] = None
     elif "lambda" in dictOfConfigs["func"]:
